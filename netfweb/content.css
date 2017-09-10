@@ -1,0 +1,19 @@
+
+span.nfw_score{
+    font-size: 14px;
+    position: relative;
+    top: -36px;
+    margin-right: 5px;
+    float: right;
+    border-radius: 50%;
+
+    width: 20px;
+    height: 20px;
+    padding: 4px;
+
+    background: rgba(100,100,100,0.7);
+    border: 2px solid #666;
+    color: #FF9;
+    font-weight: bold;
+    text-align: center;
+}
