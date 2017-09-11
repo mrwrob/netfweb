@@ -13,15 +13,23 @@ function placeScore(titleName, filmBox){
 }
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
-   titleName=score="";
-   for (key in changes) {
-       var storageChange = changes[key];
-       titleName=key;
-       score=storageChange.newValue;
-   }
-   $(".title_"+titleName).each(function(){
-	$(this).append(score);
-   });
+    titleName=score="";
+    for (key in changes) {
+        var storageChange = changes[key];
+        titleName=key;
+        score=storageChange.newValue;
+//        if(key=="scoreSource"){
+//            titleName = $(this).find('.video-preload-title-label:first').text()
+//            if(titleName) placeScore1(titleName, $(this));   
+//            alert(key+" "+score);
+//        }
+    }
+
+    if(key!="scoreSource"){
+        $(".title_"+titleName).each(function(){
+            $(this).append(score);
+       });
+    }
 });
 
 //chrome.storage.local.clear();     // TODO: clear scores after some time
