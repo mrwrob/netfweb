@@ -5,7 +5,7 @@ Since Netflix replaced stars with a thumbs rating system, it has become <a href=
 
 ---
 
-FilmWeb scores for Netflix. Rozszerzenie wzbogaca stronę Netfliksa o oceny dostęnych pozycji na podstawie danych z serwisu FilmWeb.pl.
+Film scores for Netflix. Rozszerzenie wzbogaca stronę Netfliksa o oceny dostęnych pozycji na podstawie danych z serwisów FilmWeb.pl oraz Nflix.pl.
 
 Odkąd Netflix zmienił system oceniania filmów z gwiazdek na system rekomendacji "łapka w górę/dół", wyszukiwanie wartościowych pozycji stało się... utrudnione. To rozszerzenie przywraca ocenę poszczególnych filmów i seriali na strony Netfliksa. Prezentowany ranking pochodzi z największego polskiego serwisu poświeconego filmom - FilmWeb.pl, oraz z serwisu Nflix.pl.
 
