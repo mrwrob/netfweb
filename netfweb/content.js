@@ -1,14 +1,14 @@
 // Runs background script to aquire score from FilmWeb. Adds SPAN and fullfill it with data from storage.
-function placeScore(titleName, filmBox){
-    chrome.runtime.sendMessage({type: "getScore", titleName: titleName});
+function placeScore(titleName, idNetflix, filmBox){
+    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
 
-    filmBox.append("<span class='nfw_score title_"+titleName.replace(/[^\w]/gi, '')+"'></span>");
+    filmBox.append("<div class='nfw_score title_"+titleName.replace(/[^\w]/gi, '')+"'></div>");
 
-    var readStore = titleName.replace(/[^\w]/gi, '');
+    var readStore = scoreSource+"_"+titleName.replace(/[^\w]/gi, '');
     chrome.storage.local.get(readStore, function(data) {
-        if(data[readStore] !== undefined){
-            filmBox.find("span").append(data[readStore]);
-        }
+        score = data[readStore];
+        if(score == "0" || score == "" || score == undefined) score="?";
+        filmBox.find(".nfw_score").html(score);
     });
 }
 
@@ -16,7 +16,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     titleName=score="";
     for (key in changes) {
         var storageChange = changes[key];
-        titleName=key;
+        titleName=key.replace(scoreSource+"_","");
         score=storageChange.newValue;
 //        if(key=="scoreSource"){
 //            titleName = $(this).find('.video-preload-title-label:first').text()
@@ -24,20 +24,29 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 //            alert(key+" "+score);
 //        }
     }
+ 
+    if(score == "0"||score=="") score="?";
 
     if(key!="scoreSource"){
         $(".title_"+titleName).each(function(){
-            $(this).append(score);
+            $(this).html(score);
        });
     }
 });
 
-//chrome.storage.local.clear();     // TODO: clear scores after some time
 
-$('.ptrack-content').each(function(){
-    titleName = $(this).find('.video-preload-title-label:first').text()
-    if(titleName) placeScore(titleName, $(this));
+var scoreSource='nflix';
+var readStore = "scoreSource";
+chrome.storage.sync.get(readStore, function(data) {
+    if(data[readStore] !== undefined) scoreSource = data[readStore];
+    $('.title_card').each(function(){
+        titleName = $(this).find('.video-preload-title-label:first').text();
+        idNetflix = $(this).attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
+        if(titleName) placeScore(titleName,idNetflix, $(this));
+    });
+
 });
+
 
 
 // Allows to monitor changes in DOM. Does not work for JavaScript modifications...
@@ -47,9 +56,10 @@ var observer = new MutationObserver(function( mutations ) {
     if( newNodes !== null ) { // If there are new nodes added
     	var $nodes = $( newNodes ); // jQuery set
     	$nodes.each(function() {
-            $(this).find('.ptrack-content').each(function(){
-                titleName = $(this).find('.video-preload-title-label:first').text()
-                if(titleName) placeScore(titleName, $(this));
+            $(this).find('.title_card').each(function(){
+                titleName = $(this).find('.video-preload-title-label:first').text();
+                idNetflix = $(this).attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
+                if(titleName) placeScore(titleName,idNetflix, $(this));
             });
     	});
     }

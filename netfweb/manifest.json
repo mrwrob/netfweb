@@ -7,6 +7,7 @@
   "permissions": [
     "http://*.filmweb.pl/",
     "http://filmweb.pl/",
+    "https://www.nflix.pl/",
     "storage",
     "tabs"
    ],
@@ -20,9 +21,9 @@
   },
  
   "content_scripts": [{
+    "matches": ["https://www.netflix.com/*"],
     "js": ["jquery.js", "content.js"],
-    "css": ["content.css"],
-    "matches": ["https://www.netflix.com/*"]
+    "css": ["content.css"]
   }], 
 
   "background": {

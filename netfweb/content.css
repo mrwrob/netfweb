@@ -1,15 +1,18 @@
 
-span.nfw_score{
+div.nfw_score{
     font-size: 14px;
     position: relative;
-    top: -36px;
+    top: -40px;
     margin-right: 5px;
     float: right;
     border-radius: 50%;
 
-    width: 20px;
-    height: 20px;
-    padding: 4px;
+    line-height: 34px;
+
+    width: 34px;
+    height: 34px;
+    text-align: center;
+    vertical-align: center;
 
     background: rgba(100,100,100,0.7);
     border: 2px solid #666;

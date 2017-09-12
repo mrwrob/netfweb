@@ -1,10 +1,16 @@
     
 function click(e) {
-    var save = {};
-    save['scoreSource'] = e.target.id;
-    chrome.storage.sync.set(save);
-    chrome.storage.local.clear();
-    chrome.tabs.reload();
+    if(e.target.id == "reload") {
+        chrome.storage.local.clear();
+        chrome.tabs.reload();
+    } else if(e.target.id == "logo") 
+        chrome.tabs.create({url: "https://github.com/mrwrob/netfweb"});
+    else{
+        var save = {};
+        save['scoreSource'] = e.target.id;
+        chrome.storage.sync.set(save);
+        chrome.tabs.reload();
+    }
     window.close();
 }
 
@@ -16,10 +22,13 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 var readStore = "scoreSource";
+$('#nflix').css('font-weight', 'bold');
 chrome.storage.sync.get(readStore, function(data) {
     if(data[readStore] === undefined){
         $('#nflix').css('font-weight', 'bold');
     } else{
+        $('#filmweb').css('font-weight', 'none');
+        $('#nflix').css('font-weight', 'none');
         $('#'+data[readStore]).css('font-weight', 'bold');
     }
 
