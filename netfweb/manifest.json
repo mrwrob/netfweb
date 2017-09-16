@@ -3,7 +3,7 @@
  
   "name": "Film scores for Netflix",
   "version": "0.1.1",
-  "description": "Extension enriches netflix browser with a rating based on the scores from FilmWeb.pl site.",
+  "description": "Extension enriches netflix browser with a rating based on the scores from FilmWeb.pl and Netflix.pl sites.",
   "permissions": [
     "http://*.filmweb.pl/",
     "http://filmweb.pl/",
@@ -11,7 +11,7 @@
     "storage",
     "tabs"
    ],
-   
+ "web_accessible_resources": ["star.png"],
  "icons": { "16": "icon16.png" , "48": "icon48.png", "128": "icon128.png" },
 
   "browser_action": { 

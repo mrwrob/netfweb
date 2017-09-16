@@ -6,11 +6,58 @@ function placeScore(titleName, idNetflix, filmBox){
 
     var readStore = scoreSource+"_"+titleName.replace(/[^\w]/gi, '');
     chrome.storage.local.get(readStore, function(data) {
-        score = data[readStore];
-        if(score == "0" || score == "" || score == undefined) score="?";
-        filmBox.find(".nfw_score").html(score);
+        if(scoreSource == 'nflix'){
+            score = data[readStore];
+            if(score == "0" || score == "" || score == undefined) score="?";
+            filmBox.find(".nfw_score").html(score);
+        } else {
+            var filmwebJSON = JSON.parse(data[readStore]);
+            score = filmwebJSON.score;
+            if(score == "0" || score == "" || score == undefined) score="?";
+            filmBox.find(".nfw_score").html(score);
+        }
     });
 }
+
+function placeScoreBob(titleName, filmBox){
+
+    var readStore = "filmweb_"+titleName.replace(/[^\w]/gi, '');
+    chrome.storage.local.get(readStore, function(data) {
+        var filmwebJSON = JSON.parse(data[readStore]);
+        score = filmwebJSON.score;
+        if(score == "0" || score == "" || score == undefined) score="?";
+        filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Filmweb "+score+"</span>");
+    });
+
+    readStore1 = "nflix_"+titleName.replace(/[^\w]/gi, '');
+    chrome.storage.local.get(readStore1, function(data) {
+        score = data[readStore1];
+        if(score == "0" || score == "" || score == undefined) score="?";
+        filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Nflix.pl "+score+"</span>");
+    });
+
+}
+
+function placeScoreJaw(titleName, filmBox){
+
+    var readStore = "filmweb_"+titleName.replace(/[^\w]/gi, '');
+    filmBox.append("<div class='nfw_score_jaw'></div>");
+    chrome.storage.local.get(readStore, function(data) {
+        var filmwebJSON = JSON.parse(data[readStore]);
+        score = filmwebJSON.score;
+        if(score == "0" || score == "" || score == undefined) score="?";
+        filmBox.find('.nfw_score_jaw').append("<img src='"+chrome.extension.getURL("/star.png")+"'> Filmweb "+score+" ");
+    });
+
+    readStore1 = "nflix_"+titleName.replace(/[^\w]/gi, '');
+    chrome.storage.local.get(readStore1, function(data) {
+        score = data[readStore1];
+        if(score == "0" || score == "" || score == undefined) score="?";
+        filmBox.find('.nfw_score_jaw').append("<img src='"+chrome.extension.getURL("/star.png")+"'> Nflix.pl "+score+" ");
+    });
+
+}
+
 
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     titleName=score="";
@@ -29,7 +76,14 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 
     if(key!="scoreSource"){
         $(".title_"+titleName).each(function(){
-            $(this).html(score);
+            if(titleName.match('$nflix')){
+                $(this).html(score);
+            } else {
+                var filmwebJSON = JSON.parse(score);
+                score = filmwebJSON.score;
+                if(score == "0" || score == "" || score == undefined) score="?";
+                $(this).html(score);
+            }
        });
     }
 });
@@ -56,11 +110,28 @@ var observer = new MutationObserver(function( mutations ) {
     if( newNodes !== null ) { // If there are new nodes added
     	var $nodes = $( newNodes ); // jQuery set
     	$nodes.each(function() {
-            $(this).find('.title_card').each(function(){
-                titleName = $(this).find('.video-preload-title-label:first').text();
-                idNetflix = $(this).attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
-                if(titleName) placeScore(titleName,idNetflix, $(this));
-            });
+            if($(this).attr('class') !== undefined){
+                $(this).find('.title_card').each(function(){
+                    titleName = $(this).find('.video-preload-title-label:first').text();
+                    idNetflix = $(this).attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
+                    if(titleName) {
+                        placeScore(titleName,idNetflix, $(this));
+                    }
+                });
+                    
+                if($(this).attr('class').match("bob-card")){
+                    $(this).find('.bob-text').each(function(){
+                        titleName = $(this).find('.bob-title').text();
+                        if(titleName) placeScoreBob(titleName, $(this).find('.bob-title'));
+                    });
+                }
+
+                if($(this).attr('class').match("jawBoneOpenContainer")){
+                    titleName=$(this).find('div.title').text();
+                    console.log("gotit:"+ titleName);
+                    if(titleName) placeScoreJaw(titleName, $(this).find('div.meta'));
+                }
+            }              
     	});
     }
   });    

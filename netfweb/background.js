@@ -2,7 +2,8 @@ $('body').append("<div id='hidden'></div>");
 
 function getFilmWeb(request,data){
 
-    if(data["filmweb_"+request.titleName.replace(/[^\w]/gi, '')] === ""){
+    if(!data["filmweb_"+request.titleName.replace(/[^\w]/gi, '')]){
+        console.log('"'+data["filmweb_"+request.titleName.replace(/[^\w]/gi, '')]+'" '+"filmweb_"+request.titleName.replace(/[^\w]/gi, ''));
         $.ajax({
             url:'http://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName),
             success: function(data) {
@@ -19,8 +20,9 @@ function getFilmWeb(request,data){
                                 if(parseURL !== null){
                                     score = parseURL[0].replace(/.*"([^"]*)"/,'$1');
                                     var titleName="filmweb_"+request.titleName.replace(/[^\w]/gi, '');
+                                    var filmwebJSON = JSON.stringify({ 'score': score, 'URL' : targetURL });
                                     var save = {};
-                                    save[titleName] = score;
+                                    save[titleName] = filmwebJSON;
                                     chrome.storage.local.set(save);
                                 }
                             }
