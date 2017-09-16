@@ -52,3 +52,8 @@ div.nfw_score_jaw {
     text-align: center;
     border-radius: 5px;
 }
+
+a.nfw_jaw_link {
+    color: #FF9;
+
+}

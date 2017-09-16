@@ -2,21 +2,23 @@
 function placeScore(titleName, idNetflix, filmBox){
     chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
 
-    filmBox.append("<div class='nfw_score title_"+titleName.replace(/[^\w]/gi, '')+"'></div>");
+    if(filmBox.find('div.nfw_score').length == 0){
+        filmBox.append("<div class='nfw_score title_"+titleName.replace(/[^\w]/gi, '')+"'></div>");
 
-    var readStore = scoreSource+"_"+titleName.replace(/[^\w]/gi, '');
-    chrome.storage.local.get(readStore, function(data) {
-        if(scoreSource == 'nflix'){
-            score = data[readStore];
-            if(score == "0" || score == "" || score == undefined) score="?";
-            filmBox.find(".nfw_score").html(score);
-        } else {
-            var filmwebJSON = JSON.parse(data[readStore]);
-            score = filmwebJSON.score;
-            if(score == "0" || score == "" || score == undefined) score="?";
-            filmBox.find(".nfw_score").html(score);
-        }
-    });
+        var readStore = scoreSource+"_"+titleName.replace(/[^\w]/gi, '');
+        chrome.storage.local.get(readStore, function(data) {
+            if(scoreSource == 'nflix'){
+                score = data[readStore];
+                if(score == "0" || score == "" || score == undefined) score="?";
+                filmBox.find(".nfw_score").html(score);
+            } else {
+                var filmwebJSON = JSON.parse(data[readStore]);
+                score = filmwebJSON.score;
+                if(score == "0" || score == "" || score == undefined) score="?";
+                filmBox.find(".nfw_score").html(score);
+            }
+        });
+    }
 }
 
 function placeScoreBob(titleName, filmBox){
@@ -45,8 +47,9 @@ function placeScoreJaw(titleName, filmBox){
     chrome.storage.local.get(readStore, function(data) {
         var filmwebJSON = JSON.parse(data[readStore]);
         score = filmwebJSON.score;
+        url = filmwebJSON.URL;
         if(score == "0" || score == "" || score == undefined) score="?";
-        filmBox.find('.nfw_score_jaw').append("<img src='"+chrome.extension.getURL("/star.png")+"'> Filmweb "+score+" ");
+        filmBox.find('.nfw_score_jaw').append("<a class='nfw_jaw_link' href='"+url+"'><img src='"+chrome.extension.getURL("/star.png")+"'> Filmweb "+score+"</a> ");
     });
 
     readStore1 = "nflix_"+titleName.replace(/[^\w]/gi, '');
@@ -126,9 +129,11 @@ var observer = new MutationObserver(function( mutations ) {
                     });
                 }
 
-                if($(this).attr('class').match("jawBoneOpenContainer")){
+                if($(this).attr('class').match(/jawBone(FadeInPlaceContainer|OpenContainer)/)){
                     titleName=$(this).find('div.title').text();
-                    console.log("gotit:"+ titleName);
+                    if(!titleName){
+                        titleName=$(this).find('img.logo').attr('alt');
+                    }
                     if(titleName) placeScoreJaw(titleName, $(this).find('div.meta'));
                 }
             }              

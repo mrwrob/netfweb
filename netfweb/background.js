@@ -3,13 +3,12 @@ $('body').append("<div id='hidden'></div>");
 function getFilmWeb(request,data){
 
     if(!data["filmweb_"+request.titleName.replace(/[^\w]/gi, '')]){
-        console.log('"'+data["filmweb_"+request.titleName.replace(/[^\w]/gi, '')]+'" '+"filmweb_"+request.titleName.replace(/[^\w]/gi, ''));
         $.ajax({
             url:'http://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName),
             success: function(data) {
                 var parseURL=/<a href[^>]*hitTitle/.exec(data);
                 if(parseURL !== null){
-                    targetURL = "http://www.filmweb.pl"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
+                    var targetURL = "http://www.filmweb.pl"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
                     if((targetURL.match(/filmweb/)) && (! targetURL.match(/(undefined|news|person|user|videogame)/))){
                         var titleName=request.titleName.replace(/[^\w]/gi, '');
                         $.ajax({
