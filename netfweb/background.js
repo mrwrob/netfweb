@@ -39,13 +39,15 @@ function getNflix(request,data){
 
     if((data["nflix_"+request.titleName.replace(/[^\w]/gi, '')] === "")|| (data["nflix_"+request.titleName.replace(/[^\w]/gi, '')] === undefined)){
         $.ajax({
-            url:'https://www.nflix.pl/netflix-polska-lista-wszystkich-dostepnych-tytulow/api.php?k=Lhygft5dfrte4&o=r&c=pl&netflix_id='+request.idNetflix,
+            url:'http://api.nflix.pl/api_netflix_rating/?k=Lhygft5dfrte4&o=r&c=pl&netflix_id='+request.idNetflix,
             success: function(data) {
                 if(data !== null){
                         var score = data;
                         var titleName="nflix_"+request.titleName.replace(/[^\w]/gi, '');
+                        var targetURL = 'https://www.nflix.pl/netflix-polska/opis/?i='+request.idNetflix;
+                        var nflixJSON = JSON.stringify({ 'score': score, 'URL' : targetURL });
                         var save = {};
-                        save[titleName] = score;
+                        save[titleName] = nflixJSON;
                         chrome.storage.local.set(save);
                 }
              }

@@ -1,4 +1,22 @@
 // Runs background script to aquire score from FilmWeb. Adds SPAN and fullfill it with data from storage.
+
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason == "update"){
+        chrome.storage.local.clear();
+    }
+});
+
+function getInfo(data){
+    if(data){
+        var infoJSON = JSON.parse(data);
+        if(infoJSON.score == "0" || infoJSON.score == "" || infoJSON.score == undefined) infoJSON.score="?";
+        return infoJSON;
+    } else {
+        return JSON.parse('{ "score": "?", "URL": ""}');
+    }
+
+}
+
 function placeScore(titleName, idNetflix, filmBox){
     chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
 
@@ -7,16 +25,7 @@ function placeScore(titleName, idNetflix, filmBox){
 
         var readStore = scoreSource+"_"+titleName.replace(/[^\w]/gi, '');
         chrome.storage.local.get(readStore, function(data) {
-            if(scoreSource == 'nflix'){
-                score = data[readStore];
-                if(score == "0" || score == "" || score == undefined) score="?";
-                filmBox.find(".nfw_score").html(score);
-            } else {
-                var filmwebJSON = JSON.parse(data[readStore]);
-                score = filmwebJSON.score;
-                if(score == "0" || score == "" || score == undefined) score="?";
-                filmBox.find(".nfw_score").html(score);
-            }
+            filmBox.find(".nfw_score").html(getInfo(data[readStore]).score);
         });
     }
 }
@@ -25,17 +34,12 @@ function placeScoreBob(titleName, filmBox){
 
     var readStore = "filmweb_"+titleName.replace(/[^\w]/gi, '');
     chrome.storage.local.get(readStore, function(data) {
-        var filmwebJSON = JSON.parse(data[readStore]);
-        score = filmwebJSON.score;
-        if(score == "0" || score == "" || score == undefined) score="?";
-        filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Filmweb "+score+"</span>");
+        filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Filmweb "+getInfo(data[readStore]).score+"</span>");
     });
 
     readStore1 = "nflix_"+titleName.replace(/[^\w]/gi, '');
     chrome.storage.local.get(readStore1, function(data) {
-        score = data[readStore1];
-        if(score == "0" || score == "" || score == undefined) score="?";
-        filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Nflix.pl "+score+"</span>");
+        filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Nflix.pl "+getInfo(data[readStore1]).score+"</span>");
     });
 
 }
@@ -45,18 +49,14 @@ function placeScoreJaw(titleName, filmBox){
     var readStore = "filmweb_"+titleName.replace(/[^\w]/gi, '');
     filmBox.append("<div class='nfw_score_jaw'></div>");
     chrome.storage.local.get(readStore, function(data) {
-        var filmwebJSON = JSON.parse(data[readStore]);
-        score = filmwebJSON.score;
-        url = filmwebJSON.URL;
-        if(score == "0" || score == "" || score == undefined) score="?";
-        filmBox.find('.nfw_score_jaw').append("<a class='nfw_jaw_link' href='"+url+"'><img src='"+chrome.extension.getURL("/star.png")+"'> Filmweb "+score+"</a> ");
+        var infoJSON = getInfo(data[readStore]);
+        filmBox.find('.nfw_score_jaw').append("<a target='_blank' class='nfw_jaw_link' href='"+infoJSON.URL+"'><img src='"+chrome.extension.getURL("/star.png")+"'> Filmweb "+infoJSON.score+"</a> ");
     });
 
     readStore1 = "nflix_"+titleName.replace(/[^\w]/gi, '');
     chrome.storage.local.get(readStore1, function(data) {
-        score = data[readStore1];
-        if(score == "0" || score == "" || score == undefined) score="?";
-        filmBox.find('.nfw_score_jaw').append("<img src='"+chrome.extension.getURL("/star.png")+"'> Nflix.pl "+score+" ");
+        var infoJSON = getInfo(data[readStore1]);
+        filmBox.find('.nfw_score_jaw').append("<a target='_blank' class='nfw_jaw_link' href='"+infoJSON.URL+"'><img src='"+chrome.extension.getURL("/star.png")+"'> Nflix.pl "+infoJSON.score+"</a> ");
     });
 
 }
@@ -134,7 +134,7 @@ var observer = new MutationObserver(function( mutations ) {
                     if(!titleName){
                         titleName=$(this).find('img.logo').attr('alt');
                     }
-                    if(titleName) placeScoreJaw(titleName, $(this).find('div.meta'));
+                    if(titleName) placeScoreJaw(titleName, $(this).find('div.actionsRow'));
                 }
             }              
     	});

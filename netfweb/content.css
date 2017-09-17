@@ -45,6 +45,7 @@ div.nfw_score_jaw {
     clear: both;
 
 
+    margin-left: 10px;
     background: rgba(100,100,100,0.7);
     border: 2px solid #666;
     color: #FF9;

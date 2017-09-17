@@ -2,12 +2,12 @@
   "manifest_version": 2,
  
   "name": "Film scores for Netflix",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Extension enriches netflix browser with a rating based on the scores from FilmWeb.pl and Netflix.pl sites.",
   "permissions": [
     "http://*.filmweb.pl/",
     "http://filmweb.pl/",
-    "https://www.nflix.pl/",
+    "http://*.nflix.pl/",
     "storage",
     "tabs"
    ],
