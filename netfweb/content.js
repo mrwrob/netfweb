@@ -1,11 +1,5 @@
 // Runs background script to aquire score from FilmWeb. Adds SPAN and fullfill it with data from storage.
 
-chrome.runtime.onInstalled.addListener(function(details){
-    if(details.reason == "update"){
-        chrome.storage.local.clear();
-    }
-});
-
 function getInfo(data){
     if(data){
         var infoJSON = JSON.parse(data);
@@ -34,7 +28,9 @@ function placeScoreBob(titleName, filmBox){
 
     var readStore = "filmweb_"+titleName.replace(/[^\w]/gi, '');
     chrome.storage.local.get(readStore, function(data) {
-        filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Filmweb "+getInfo(data[readStore]).score+"</span>");
+        if(data){
+            filmBox.append("<span class='nfw_score_bob' onlick='return false;'>Filmweb "+getInfo(data[readStore]).score+"</span>");
+        }
     });
 
     readStore1 = "nflix_"+titleName.replace(/[^\w]/gi, '');
@@ -67,7 +63,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
     for (key in changes) {
         var storageChange = changes[key];
         titleName=key.replace(scoreSource+"_","");
-        score=storageChange.newValue;
+        data=storageChange.newValue;
 //        if(key=="scoreSource"){
 //            titleName = $(this).find('.video-preload-title-label:first').text()
 //            if(titleName) placeScore1(titleName, $(this));   
@@ -75,18 +71,10 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 //        }
     }
  
-    if(score == "0"||score=="") score="?";
 
     if(key!="scoreSource"){
         $(".title_"+titleName).each(function(){
-            if(titleName.match('$nflix')){
-                $(this).html(score);
-            } else {
-                var filmwebJSON = JSON.parse(score);
-                score = filmwebJSON.score;
-                if(score == "0" || score == "" || score == undefined) score="?";
-                $(this).html(score);
-            }
+            $(this).html(getInfo(data).score);
        });
     }
 });
@@ -95,7 +83,7 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 var scoreSource='nflix';
 var readStore = "scoreSource";
 chrome.storage.sync.get(readStore, function(data) {
-    if(data[readStore] !== undefined) scoreSource = data[readStore];
+    if((data !== undefined) && (data[readStore] !== undefined)) scoreSource = data[readStore];
     $('.title_card').each(function(){
         titleName = $(this).find('.video-preload-title-label:first').text();
         idNetflix = $(this).attr('href').replace(/\/watch\/([0-9]*).*/,"$1");

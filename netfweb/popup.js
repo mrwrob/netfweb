@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
 var readStore = "scoreSource";
 $('#nflix').css('font-weight', 'bold');
 chrome.storage.sync.get(readStore, function(data) {
-    if(data[readStore] === undefined){
+    if(data === undefined || data[readStore] === undefined){
         $('#nflix').css('font-weight', 'bold');
     } else{
         $('#filmweb').css('font-weight', 'none');
