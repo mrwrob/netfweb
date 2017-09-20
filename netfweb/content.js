@@ -86,8 +86,10 @@ chrome.storage.sync.get(readStore, function(data) {
     if((data !== undefined) && (data[readStore] !== undefined)) scoreSource = data[readStore];
     $('.title_card').each(function(){
         titleName = $(this).find('.video-preload-title-label:first').text();
-        idNetflix = $(this).attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
-        if(titleName) placeScore(titleName,idNetflix, $(this));
+        if(titleName){
+            idNetflix = $(this).attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
+            if(titleName) placeScore(titleName,idNetflix, $(this));
+        }
     });
 
 });

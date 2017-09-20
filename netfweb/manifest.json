@@ -6,9 +6,10 @@
   "version": "0.1.5",
   "description": "Extension enriches netflix browser with a rating based on the scores from FilmWeb.pl and Netflix.pl sites.",
   "permissions": [
-    "http://*.filmweb.pl/",
-    "http://filmweb.pl/",
-    "http://*.nflix.pl/",
+    "https://github.com/mrwrob/netfweb",
+    "https://www.nflix.pl/", 
+    "http://api.nflix.pl/", 
+    "http://www.filmweb.pl",
     "storage",
     "tabs"
    ],
