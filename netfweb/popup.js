@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 var readStore = "scoreSource";
-$('#nflix').css('font-weight', 'bold');
+$('#filmweb').css('font-weight', 'bold');
 chrome.storage.sync.get(readStore, function(data) {
     if(data === undefined || data[readStore] === undefined){
-        $('#nflix').css('font-weight', 'bold');
+        $('#filmweb').css('font-weight', 'bold');
     } else{
         $('#filmweb').css('font-weight', 'none');
         $('#nflix').css('font-weight', 'none');
