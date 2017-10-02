@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Film scores for Netflix</title>
+        <style>
+            body {
+                margin: 0px;
+                padding: 0px;
+                background: #efefef;
+                font-family: sans-serif;
+            }
+
+            a {
+                text-decoration: none;
+                color: #aaa;
+            }
+            div.desc {
+                max-width: 1000px;
+                padding: 5px 10px;
+                font-size: 12pt;
+                margin: 10px auto;
+            }
+
+            h3 {
+                text-align: center;
+                font-size: 20pt;
+            }
+            div.logo_back {
+                width: 100%;
+                height: 180px;
+                background: #111;
+                padding-top: 30px;
+            }
+
+            div.logo_grad {
+                width: 100%;
+                height: 10px;
+                background: linear-gradient(180deg, #111 0%,#555 80%);
+            }
+
+            div.logo_title {
+                width: 255px;
+                margin: 20px auto;
+            }
+
+            h3, h4, p {
+                color: #444;
+            }
+
+            h4 {
+                margin-bottom: 0;
+            }
+
+            h1, h2{
+                width: 180px;
+                float: left;
+                margin: 0;
+                text-align: right;
+                color: #eee;
+            }
+
+            h1 {
+                font-size: 20pt;
+            }
+            h2 {
+                font-size: 18pt;
+            }
+
+            img.netfweb_logo {
+                float: right;
+                margin: 0;
+                margin-top: 10px;
+            }
+
+            div.desc p {
+                margin: 0;
+            }
+
+            div.links {
+                color: #aaa;
+                border-spacing:15px;
+                width: 400px;
+                margin: 100px auto;
+            }
+
+            div.links div{
+                padding: 10px 20px;
+                display: table-cell;
+                font-size: 14pt;
+                border: 1px solid #aaa;
+                border-radius: 5px;
+                margin-right: 5px;
+            }
+
+            div.nfw_score{
+                font-size: 14px;
+                margin-right: 5px;
+                border-radius: 50%;
+                float: left;
+                line-height: 34px;
+
+                width: 34px;
+                height: 34px;
+                text-align: center;
+                vertical-align: center;
+
+                background: rgba(100,100,100,0.7);
+                border: 2px solid #666;
+                color: #FF9;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            div.nfw_score_bob {
+                float: left;
+                font-size: 12px;
+                margin: 8px 0 0 10px;
+                padding: 2px 5px;
+                pointer-events:none;
+
+                text-align: center;
+
+                background: rgba(100,100,100,0.7);
+                border: 2px solid #666;
+                color: #FF9;
+                font-weight: bold;
+                text-align: center;
+                border-radius: 5px;
+            }
+
+            div.nfw_score_jaw {
+                font-size: 14px;
+                padding: 2px 5px;
+                width: 250px;
+                float: left;
+
+                margin: 7px 0 0 10px;
+                background: rgba(100,100,100,0.7);
+                border: 2px solid #666;
+                color: #FF9;
+                font-weight: bold;
+                text-align: center;
+                border-radius: 5px;
+            }
+
+            div.pl {
+                margin-top: 100px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="logo_back">
+            <div class="logo_title">
+                <img class="netfweb_logo" src='icon48.png'>
+                <h2>Film scores for </h2>
+                <h1>Netflix</h1>
+           </div>
+            <div class='links'>
+                <div><a href='#changelog'>changelog</a></div>
+                <div><a href='#about'>about</a></div>
+                <div><a href='#troubleshooting'>troubleshooting</a></div>
+            </div>
+         </div>
+        <div class="logo_grad"></div>
+        <div class='desc'>
+            <h3>changelog</h3><a name='changelog'></a>
+            <h4> 0.1.8</h4>
+            <p>Help page. </p>
+
+            <h4> 0.1.7</h4>
+            <p>Ability to report incorrect links to Filmweb website. </p>
+
+            <h4> 0.1.6</h4>
+            <p>Update due to netflix site modification. </p>
+
+            <h4> 0.1.5</h4>
+            <p>Opera and Firefox port.</p>
+
+            <h4>0.1.4</h4>
+            <p>Link to nflix.pl. Fixed problems with displaying film ratings.</p>
+
+            <h4> 0.1.2</h4>
+            <p>Displaying scores on details boxes (both bob/small and jaw/big). Link to filmweb site.</p>
+        </div>
+        <div class='desc'>
+            <h3>about</h3><a name='about'></a>
+            <p>Extension enriches netflix browser with a rating based on the scores from FilmWeb.pl and Nflix.pl sites.</p>
+
+            <p>Since Netflix replaced stars with a thumbs rating system, it has become <a href='https://www.forbes.com/sites/insertcoin/2017/06/26/netflixs-thumb-based-ratings-system-is-the-epitome-of-uselessness'>very painful</a> to find interesting stuff. This Chrome extension brings the score rating back to the Netflix browser. Ratings on a scale 0-10, are currently provided by the FilmWeb.pl, the largest Polish online film database, and the Nflix.pl.</p>
+            <p><div class='nfw_score'>8,8</div><div class='nfw_score_bob'>Filmweb 8,8</div><div class='nfw_score_bob'>Nflix.pl 8,21</div><div class='nfw_score_jaw'><img src='star.png'> Filmweb 8,8 <img src='star.png'> Nflix.pl 8,21 <img src='star.png'> </div></p>
+        </div>
+        <div style='clear:both'></div>
+        <div class='desc'>
+            <h3>troubleshooting</h3><a name='troubleshooting'></a>
+            <h4>1. Incorrect rating / link to website</h4>
+            <p>Ratings from the Filmweb page are retrieved using search engine that does not always identify the film correctly. If you notice that the link to the Filmweb is incorrect, you can report it by pressing the red button <img src='wrong.png'> .
+            <h4>2. Empty circles with rating</h4>
+             If you are experiencing blank rating circles<div class='nfw_score'> </div>, please try reloading the database. Select reload button <img src='reload.png'> from popup menu <img src='icon19.png'>.
+        </div>
+
+        <div class="logo_back pl"><a name='pl_help'></a>
+            <div class="logo_title">
+                <img class="netfweb_logo" src='icon48.png'>
+                <h2>Film scores for </h2>
+                <h1>Netflix</h1>
+           </div>
+            <div class='links'>
+                <div><a href='#changelog_pl'>zmiany</a></div>
+                <div><a href='#about_pl'>o&nbsp;wtyczce</a></div>
+                <div><a href='#troubleshooting_pl'>problemy</a></div>
+            </div>
+         </div>
+        <div class="logo_grad"></div>
+        <div class='desc'>
+            <h3>zmiany</h3><a name='changelog_pl'></a>
+            <h4> 0.1.8</h4>
+            <p>Strona pomocy.</p>
+
+            <h4> 0.1.7</h4>
+            <p>Możliwość zgłaszania problemów z ocenami i linkami z serwisu Filmweb. </p>
+
+            <h4> 0.1.6</h4>
+            <p>Aktualizajca z uwagi na zmiany na stronach Netfliksa </p>
+
+            <h4> 0.1.5</h4>
+            <p>Port dla Opery i Firefoksa.</p>
+
+            <h4>0.1.4</h4>
+            <p>Linki to serwisu nflix.pl. Naprawiony problem z wyświetlaniem rantingów.</p>
+
+            <h4> 0.1.2</h4>
+            <p>Wyświetlanie szczegółowych informacji w okach szczegółów. Linki do serwisu Filmweb.pl.</p>
+        </div>
+        <div class='desc'>
+           <h3>o wtyczce</h3><a name='about_pl'></a>
+           <p>Rozszerzenie wzbogaca stronę Netfliksa o oceny dostęnych pozycji na podstawie danych z serwisów FilmWeb.pl oraz Nflix.pl.</p>
+
+           <p> Odkąd Netflix zmienił system oceniania filmów z gwiazdek na system rekomendacji "łapka w górę/dół", wyszukiwanie wartościowych pozycji stało się... utrudnione. To rozszerzenie przywraca ocenę poszczególnych filmów i seriali na strony Netfliksa. Prezentowany ranking pochodzi z największego polskiego serwisu poświeconego filmom - FilmWeb.pl, oraz z serwisu Nflix.pl.</p>
+            <p><div class='nfw_score'>8,8</div><div class='nfw_score_bob'>Filmweb 8,8</div><div class='nfw_score_bob'>Nflix.pl 8,21</div><div class='nfw_score_jaw'><img src='star.png'> Filmweb 8,8 <img src='star.png'> Nflix.pl 8,21 <img src='star.png'> </div></p>
+        </div>
+        <div style='clear:both'></div>
+        <div class='desc'>
+            <h3>problemy</h3><a name='troubleshooting_pl'></a>
+            <h4>1. Niepoprawne oceny lub błędne linki do opisu na Filmweb.pl</h4>
+            <p>Oceny filmów z serwisu Filmweb są pobierane automatycznie za pomocą udostępnionej wyszukiwarki. Czasami, zwłaszcza w przypadku nowości, mechanizm ten nie sprawdza się i wyświetlane są dane innych filmów lub seriali. Teraz za pomocą czerwonego przycisku <img src='wrong.png'> w łatwy sposób można zgłosić problem. W kolejnej wersji wtyczki dane zostaną skorygowane..
+            <h4>2. Puste kółka z ocenami</h4>
+             Jeśli na stronie pojawiają się puste kółka z ocenami <div class='nfw_score'> </div>, spróbuj przeładować bazę danych. Naciśnij przycisk odświeżenia <img src='reload.png'> z menu na belce przeglądarki <img src='icon19.png'>.
+        </div>
+
+    </body>
+</html>
