@@ -3,17 +3,19 @@
  
   "name": "Film scores for Netflix",
   "short_name": "netfweb",
-  "version": "0.1.6",
+  "version": "0.2.2",
   "description": "Extension enriches netflix browser with a rating based on the scores from FilmWeb.pl and Netflix.pl sites.",
   "permissions": [
     "https://github.com/mrwrob/netfweb",
     "https://www.nflix.pl/", 
     "http://api.nflix.pl/", 
     "http://www.filmweb.pl/",
+    "http://lina.pl/",
     "storage",
     "tabs"
    ],
- "web_accessible_resources": ["star.png"],
+ "web_accessible_resources": [ "star.png", "wrong.png" ],
+
  "icons": { "16": "icon16.png" , "48": "icon48.png", "128": "icon128.png" },
 
   "browser_action": { 
@@ -24,7 +26,7 @@
  
   "content_scripts": [{
     "matches": ["https://www.netflix.com/*"],
-    "js": ["jquery.js", "content.js"],
+    "js": ["jquery.js", "map_filmweb.js", "content.js"],
     "css": ["content.css"]
   }], 
 

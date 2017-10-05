@@ -58,3 +58,8 @@ a.nfw_jaw_link {
     color: #FF9;
 
 }
+
+img.nfw_wrong{
+    float: right;
+    cursor: pointer;
+}
