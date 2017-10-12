@@ -3,7 +3,6 @@ $('body').append("<div id='hidden'></div>");
 
 function parseFilmWeb(request,targetURL){
     if((targetURL.match(/filmweb/)) && (! targetURL.match(/(undefined|news|person|user|videogame)/))){
-        var titleName=request.titleName.replace(/[^\w]/gi, '');
         $.ajax({
             url: targetURL,
             success: function(data) {
@@ -25,10 +24,9 @@ function parseFilmWeb(request,targetURL){
 
 function getFilmWeb(request,data){
 
-    if(!data["filmweb_"+request.titleName.replace(/[^\w]/gi, '')]){
-        if(request.filmwebURL) 
-            parseFilmWeb(request,'http://www.filmweb.pl/'+request.filmwebURL);
-        else
+    if(!data["filmweb_"+request.idNetflix]){
+        if(request.filmwebURL) parseFilmWeb(request,'http://www.filmweb.pl/'+request.filmwebURL);
+        else {
             $.ajax({
                 url:'http://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName),
                 success: function(data) {
@@ -39,12 +37,13 @@ function getFilmWeb(request,data){
                     }
                 }
             });
+        }
     }
 }
 
 function getNflix(request,data){
 
-    if((data["nflix_"+request.titleName.replace(/[^\w]/gi, '')] === "")|| (data["nflix_"+request.titleName.replace(/[^\w]/gi, '')] === undefined)){
+    if(!data["nflix_"+request.idNetflix]){
         $.ajax({
             url:'http://api.nflix.pl/api_netflix_rating/?k=Lhygft5dfrte4&o=r&c=pl&netflix_id='+request.idNetflix,
             success: function(data) {
@@ -64,16 +63,15 @@ function getNflix(request,data){
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-    if((request.type=="getScore")&&(request.titleName !== undefined)){
-        titleName=request.titleName.replace(/[^\w]/gi, '');
+    if((request.type=="getScore")&&(request.idNetflix)){
         var readStore = {};
-        readStore["filmweb_"+titleName] = '';
+        readStore["filmweb_"+request.idNetflix] = '';
         chrome.storage.local.get(readStore, function(data){
             getFilmWeb(request,data) ;
         });
 
         readStore = {};
-        readStore["nflix_"+titleName] = '';
+        readStore["nflix_"+request.idNetflix] = '';
         chrome.storage.local.get(readStore, function(data){
             getNflix(request,data) ;
         });
@@ -83,7 +81,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             url: "http://lina.pl/netfweb/report.php",
             data: { idNetflix: request.idNetflix }
         });
-  }
+        var save = {};
+        save['clipboard'] = {idNetflix: request.idNetflix, title: request.title};
+        chrome.storage.local.set(save);
+    }else if(request.type=="report_f"){
+        $.ajax({
+            method: "POST",
+            url: "http://lina.pl/netfweb/report_f.php",
+            data: { data: request.data }
+        });
+     }
 });
 
 chrome.runtime.onInstalled.addListener(function(details){

@@ -1,8 +1,8 @@
 // Runs background script to aquire score from FilmWeb. Adds SPAN and fullfill it with data from storage.
 
 
-function reportWrong(idNetflix){
-    chrome.runtime.sendMessage({type: "report", idNetflix: idNetflix});
+function reportWrong(titleName, idNetflix){
+    chrome.runtime.sendMessage({type: "report", idNetflix: idNetflix, title: titleName});
 }
 
 function getInfo(data){
@@ -17,13 +17,15 @@ function getInfo(data){
 }
 
 function placeScore(titleName, idNetflix, filmBox){
-    if(map_filmweb[idNetflix] != undefined && map_filmweb[idNetflix]!= null) chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, filmwebURL: map_filmweb[idNetflix]});
-    else chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
+    if(map_filmweb[idNetflix] != undefined && map_filmweb[idNetflix]!= null) {
+        chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, filmwebURL: map_filmweb[idNetflix]});
+    } else chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
 
-    if(filmBox.find('div.nfw_score').length == 0){
+    if(filmBox.find('div.nfw_score').length == 0 || filmBox.find('div.nfw_score').text != '?'){
         filmBox.append("<div class='nfw_score title_"+idNetflix+"'></div>");
-
+        if(!scoreSource) scoreSource='filmweb';
         var readStore = scoreSource+"_"+idNetflix;
+
         chrome.storage.local.get(readStore, function(data) {
             filmBox.find(".nfw_score").html(getInfo(data[readStore]).score);
         });
@@ -31,7 +33,6 @@ function placeScore(titleName, idNetflix, filmBox){
 }
 
 function placeScoreBob(idNetflix, filmBox){
-console.log('BoB');
     var readStore = "filmweb_"+idNetflix;
     chrome.storage.local.get(readStore, function(data) {
         if(data){
@@ -53,20 +54,22 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     filmBox.before("<div class='nfw_score_jaw'><img class='nfw_wrong' src='"+chrome.extension.getURL("/wrong.png")+"'> <img src='"+chrome.extension.getURL("/star.png")+"'> </div>");
     destBox = filmBox.parent().find('.nfw_score_jaw');
     destBox.find(".nfw_wrong").click(function(){
-        reportWrong(idNetflix);
+        reportWrong(titleName, idNetflix);
         $(this).remove();
     });
 
     var readStore = "filmweb_"+idNetflix;
     chrome.storage.local.get(readStore, function(data) {
         var infoJSON = getInfo(data[readStore]);
-        destBox.append(" <a target='_blank' class='nfw_jaw_link' href='"+infoJSON.URL+"'>&nbsp;Filmweb&nbsp;"+infoJSON.score+"</a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+        var filmwebURL = infoJSON.URL;
+        if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName);
+        destBox.append(" <a target='_blank' class='nfw_jaw_link' href='"+filmwebURL+"'>&nbsp;Filmweb&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
     });
 
     readStore1 = "nflix_"+idNetflix;
     chrome.storage.local.get(readStore1, function(data) {
         var infoJSON = getInfo(data[readStore1]);
-        destBox.append(" <a target='_blank' class='nfw_jaw_link' href='"+infoJSON.URL+"'>Nflix.pl&nbsp;"+infoJSON.score+"</a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+        destBox.append(" <a target='_blank' class='nfw_jaw_link' href='"+infoJSON.URL+"'>Nflix.pl&nbsp;<span class='title_"+readStore1+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
     });
 
 }
@@ -75,34 +78,40 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     titleName=score="";
     for (key in changes) {
-        var storageChange = changes[key];
-        idNetflix=key.replace(scoreSource+"_","");
-        data=storageChange.newValue;
-//        if(key=="scoreSource"){
-//            titleName = $(this).find('.video-preload-title-label:first').text()
-//            if(titleName) placeScore1(titleName, $(this));   
-//            alert(key+" "+score);
-//        }
-    }
- 
+        if(key!="scoreSource"){
+            var storageChange = changes[key];
+            idNetflix=key.replace(scoreSource+"_","");
+            data=storageChange.newValue;
 
-    if(key!="scoreSource"){
-        $(".title_"+idNetflix).each(function(){
-            $(this).html(getInfo(data).score);
-       });
+            if(key.match(scoreSource)){
+                $(".title_"+idNetflix).each(function(){
+                    $(this).html(getInfo(data).score);
+                });
+            }
+
+            $(".title_"+key).each(function(){
+                $(this).html(getInfo(data).score);
+            });
+
+    //        if(key=="scoreSource"){
+    //            titleName = $(this).find('.video-preload-title-label:first').text()
+    //            if(titleName) placeScore1(titleName, $(this));   
+    //            alert(key+" "+score);
+    //        }
+        }
     }
 });
 
 
 var scoreSource='filmweb';
 var readStore = "scoreSource";
-chrome.storage.sync.get(readStore, function(data) {
+chrome.storage.local.get(readStore, function(data) {
     if((data !== undefined) && (data[readStore] !== undefined)) scoreSource = data[readStore];
     $('.title_card').each(function(){
         titleName = $(this).find('.video-preload-title-label:first').text();
         if(titleName){
             idNetflix = $(this).find('a').attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
-            if(titleName) placeScore(titleName,idNetflix, $(this));
+            placeScore(titleName,idNetflix, $(this));
         }
     });
 
@@ -114,8 +123,6 @@ chrome.storage.sync.get(readStore, function(data) {
         idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
         if(titleName) placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
     });
-
-
 });
 
 

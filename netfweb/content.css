@@ -22,11 +22,9 @@ div.nfw_score{
 }
 
 span.nfw_score_bob {
-    z-index=10000;
     font-size: 12px;
     margin-left: 10px;
     padding: 2px 5px;
-    pointer-events:none;
 
     text-align: center;
 
@@ -39,12 +37,9 @@ span.nfw_score_bob {
 }
 
 div.nfw_score_jaw {
-    z-index=10000;
     font-size: 14px;
     padding: 2px 5px;
     clear: both;
-
-
     margin: 5px 0;
     background: rgba(100,100,100,0.4);
     border: 2px solid #666;

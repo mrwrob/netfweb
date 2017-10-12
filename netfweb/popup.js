@@ -7,25 +7,29 @@ function click(e) {
         chrome.tabs.create({url: "https://github.com/mrwrob/netfweb"});
     else if(e.target.id == "help") 
         chrome.tabs.create({url: "info.html"});
-    else{
+    else if((e.target.id == "report") || (e.target.id == "report_strong")){
+        chrome.runtime.sendMessage({type: "report_f", data: $('#data').html()});
+        var save = {};
+        save['clipboard'] = "";
+        chrome.storage.local.set(save);
+    } else {
         var save = {};
         save['scoreSource'] = e.target.id;
-        chrome.storage.sync.set(save);
+        chrome.storage.local.set(save);
         chrome.tabs.reload();
     }
     window.close();
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    var divs = document.querySelectorAll('div');
-    for (var i = 0; i < divs.length; i++) {
-        divs[i].addEventListener('click', click);
-    }
+    $('div').each(function(){
+        $(this).on('click', click);
+    });
 });
 
 var readStore = "scoreSource";
 $('#filmweb').css('font-weight', 'bold');
-chrome.storage.sync.get(readStore, function(data) {
+chrome.storage.local.get(readStore, function(data) {
     if(data === undefined || data[readStore] === undefined){
         $('#filmweb').css('font-weight', 'bold');
     } else{
@@ -36,3 +40,16 @@ chrome.storage.sync.get(readStore, function(data) {
 
 });
 
+chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+    if(tabs[0].url.match('filmweb.pl')){
+        var readStore = "clipboard";
+        chrome.storage.local.get(readStore, function(data) {
+            if(data && data['clipboard']){
+                $('body').append("<div id='report'>Link this site with <br><strong id='report_strong'>"+data['clipboard'].title+"</strong></div>");
+                $('#data').html('"'+data['clipboard'].idNetflix+'": "'+tabs[0].url+'",');
+                $('#report')[0].addEventListener('click', click);
+            }
+        });
+    }
+ 
+});
