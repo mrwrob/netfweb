@@ -41,6 +41,55 @@ function getFilmWeb(request,data){
     }
 }
 
+function parseMetacritic(request,targetURL){
+    if(targetURL.match(/metacritic/)){
+        $.ajax({
+            url: targetURL,
+            success: function(data) {
+                var parseURL=/setTargeting\("score", "[^"]*"/.exec(data);
+                var score = "?";
+                if(parseURL !== null){
+                    score = parseURL[0].replace(/setTargeting\("score", "([^"]*)"/,'$1');
+                    var titleName="metacritic_"+request.idNetflix;
+                    var filmwebJSON = JSON.stringify({ 'score': score, 'URL' : targetURL });
+                    var save = {};
+                    save[titleName] = filmwebJSON;
+                    chrome.storage.local.set(save);
+                }
+            }
+
+        });
+    }
+}
+
+
+
+function getMetacritic(request, data){
+    if(!data["metacritic_"+request.idNetflix]){
+        if(request.metacriticURL) {
+            parseMetacritic(request,'http://www.metacritic.com/'+request.metacriticURL);
+        }else {
+            $.ajax({
+                url:'http://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName)+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
+                success: function(data) {
+                    var re = new RegExp('<a href[^>]*>'+request.titleName.replace(/[ \'-;,]/g,'.')+' *<', 'i');
+                    var parseURL=re.exec(data);
+                    if(parseURL == null){
+                        re = new RegExp('<a href[^>]*>[^<]*'+request.titleName.replace(/[ \'-;,]/g,'.')+'[^<]*<', 'i');
+                        parseURL=re.exec(data);
+                    }
+                    if(parseURL !== null){
+                        var targetURL = "http://www.metacritic.com"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
+                        parseMetacritic(request,targetURL);
+                    }
+                }
+            });
+        }
+    }
+}
+
+
+
 function getNflix(request,data){
 
     if(!data["nflix_"+request.idNetflix]){
@@ -74,6 +123,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         readStore["nflix_"+request.idNetflix] = '';
         chrome.storage.local.get(readStore, function(data){
             getNflix(request,data) ;
+        });
+
+    } else if((request.type=="getScoreMeta")&&(request.idNetflix)){
+        var readStore = {};
+        readStore["metacritic_"+request.idNetflix] = '';
+        chrome.storage.local.get(readStore, function(data){
+             getMetacritic(request, data) ;
         });
     }else if(request.type=="report"){
         $.ajax({

@@ -41,7 +41,7 @@ chrome.storage.local.get(readStore, function(data) {
 });
 
 chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-    if(tabs[0].url.match('filmweb.pl')){
+    if(tabs[0].url.match('filmweb.pl|metacritic.com')){
         var readStore = "clipboard";
         chrome.storage.local.get(readStore, function(data) {
             if(data && data['clipboard']){

@@ -11,6 +11,7 @@
     "http://api.nflix.pl/", 
     "http://www.filmweb.pl/",
     "http://lina.pl/",
+    "http://www.metacritic.com/",
     "storage",
     "tabs"
    ],
@@ -26,7 +27,7 @@
  
   "content_scripts": [{
     "matches": ["https://www.netflix.com/*"],
-    "js": ["jquery.js", "map_filmweb.js", "content.js"],
+    "js": ["jquery.js", "map_filmweb.js", "map_metacritic.js", "content.js"],
     "css": ["content.css"]
   }], 
 
