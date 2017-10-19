@@ -19,6 +19,7 @@ div.nfw_score{
     color: #FF9;
     font-weight: bold;
     text-align: center;
+    z-index:1;
 }
 
 span.nfw_score_bob {

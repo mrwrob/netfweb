@@ -22,6 +22,7 @@ function placeScore(titleName, idNetflix, filmBox){
     } else chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
 
     if(filmBox.find('div.nfw_score').length == 0 || filmBox.find('div.nfw_score').text != '?'){
+
         filmBox.append("<div class='nfw_score title_"+idNetflix+"'></div>");
         if(!scoreSource) scoreSource='filmweb';
         var readStore = scoreSource+"_"+idNetflix;
@@ -59,6 +60,8 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     destBox = filmBox.parent().find('.nfw_score_jaw');
     destBox.find(".nfw_wrong").click(function(){
         reportWrong(titleName, idNetflix);
+        filmBox.before("<div style='position:relative;float:right;z-index:1000; top: -100px; width: 300px; height: 100px; border: 1px solid red'></div>");
+
         $(this).remove();
     });
 
@@ -123,8 +126,9 @@ var scoreSource='filmweb';
 var readStore = "scoreSource";
 chrome.storage.local.get(readStore, function(data) {
     if((data !== undefined) && (data[readStore] !== undefined)) scoreSource = data[readStore];
-    $('.title_card').each(function(){
+    $('.title-card').each(function(){
         titleName = $(this).find('.video-preload-title-label:first').text();
+
         if(titleName){
             idNetflix = $(this).find('a').attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
             placeScore(titleName,idNetflix, $(this));
@@ -151,8 +155,10 @@ var observer = new MutationObserver(function( mutations ) {
     	var $nodes = $( newNodes ); // jQuery set
     	$nodes.each(function() {
             if($(this).attr('class') !== undefined){
-                $(this).find('.title_card').each(function(){
+                console.log($(this));
+                $(this).find('.title-card-container').each(function(){
                     titleName = $(this).find('.video-preload-title-label:first').text();
+                console.log(titleName);
                     idNetflix = $(this).find('a').attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
                     if(idNetflix) {
                         placeScore(titleName,idNetflix, $(this));
