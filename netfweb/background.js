@@ -28,7 +28,7 @@ function getFilmWeb(request,data){
         if(request.filmwebURL) parseFilmWeb(request,'http://www.filmweb.pl/'+request.filmwebURL);
         else {
             $.ajax({
-                url:'http://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName),
+                url:'http://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName.replace("'","")),
                 success: function(data) {
                     var parseURL=/<a href[^>]*hitTitle/.exec(data);
                     if(parseURL !== null){
@@ -70,7 +70,7 @@ function getMetacritic(request, data){
             parseMetacritic(request,'http://www.metacritic.com/'+request.metacriticURL);
         }else {
             $.ajax({
-                url:'http://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName)+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
+                url:'http://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName.replace("'",""))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
                 success: function(data) {
                     var re = new RegExp('<a href[^>]*>'+request.titleName.replace(/[ \'-;,]/g,'.')+' *<', 'i');
                     var parseURL=re.exec(data);

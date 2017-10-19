@@ -69,7 +69,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     chrome.storage.local.get(readStore, function(data) {
         var infoJSON = getInfo(data[readStore]);
         var filmwebURL = infoJSON.URL;
-        if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName);
+        if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName.replace("'",""));
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+filmwebURL+"'>&nbsp;Filmweb&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
     });
 
@@ -83,7 +83,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     chrome.storage.local.get(readStore2, function(data) {
         var infoJSON = getInfo(data[readStore2]);
         var metacriticURL = infoJSON.URL;
-        if(!metacriticURL) metacriticURL='http://www.metacritic.com/search/all/'+encodeURIComponent(titleName)+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced';
+        if(!metacriticURL) metacriticURL='http://www.metacritic.com/search/all/'+encodeURIComponent(titleName.replace("'",""))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced';
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore2+"' href='"+metacriticURL+"'>Metacritic&nbsp;<span class='title_"+readStore2+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
     });
 
