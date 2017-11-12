@@ -1,8 +1,8 @@
 // Runs background script to aquire score from FilmWeb. Adds SPAN and fullfill it with data from storage.
 
 
-function reportWrong(titleName, idNetflix){
-    chrome.runtime.sendMessage({type: "report", idNetflix: idNetflix, title: titleName});
+function reportWrong(idNetflix, ok, source){
+    chrome.runtime.sendMessage({type: "report", idNetflix: idNetflix, ok: ok, source: source});
 }
 
 function getInfo(data){
@@ -17,9 +17,7 @@ function getInfo(data){
 }
 
 function placeScore(titleName, idNetflix, filmBox){
-    if(map_filmweb[idNetflix] != undefined && map_filmweb[idNetflix]!= null) {
-        chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, filmwebURL: map_filmweb[idNetflix]});
-    } else chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
+    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
 
     if(filmBox.find('div.nfw_score').length == 0 || filmBox.find('div.nfw_score').text != '?'){
 
@@ -49,19 +47,20 @@ function placeScoreBob(idNetflix, filmBox){
 }
 
 function placeScoreJaw(titleName, idNetflix, filmBox){
-    if(map_filmweb[idNetflix] != undefined && map_filmweb[idNetflix]!= null) chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, filmwebURL: map_filmweb[idNetflix]});
-    else chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
+    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
+    chrome.runtime.sendMessage({type: "getScoreMeta", titleName: titleName, idNetflix: idNetflix});
 
-    if(map_metacritic[idNetflix] != undefined && map_metacritic[idNetflix]!= null) {
-        chrome.runtime.sendMessage({type: "getScoreMeta", titleName: titleName, idNetflix: idNetflix, metacriticURL: map_metacritic[idNetflix]});
-    } else chrome.runtime.sendMessage({type: "getScoreMeta", titleName: titleName, idNetflix: idNetflix});
-
-    filmBox.before("<div class='nfw_score_jaw'><img class='nfw_wrong' src='"+chrome.extension.getURL("/wrong.png")+"'> <img src='"+chrome.extension.getURL("/star.png")+"'> </div>");
+    filmBox.before("<div class='nfw_score_jaw'><img class='nfw_wrong' src='"+chrome.extension.getURL("/wrong.png")+"'> <img src='"+chrome.extension.getURL("/star.png")+"'><div id='nfw_report_a'><div id='nfw_report'></div></div> </div>");
     destBox = filmBox.parent().find('.nfw_score_jaw');
     destBox.find(".nfw_wrong").click(function(){
-        reportWrong(titleName, idNetflix);
-        filmBox.before("<div style='position:relative;float:right;z-index:1000; top: -100px; width: 300px; height: 100px; border: 1px solid red'></div>");
+        $nfw_report=$(this).parent().find('#nfw_report');
+        if($nfw_report.html()){
+            var save = {};
+            save['clipboard'] = {idNetflix: idNetflix, title: titleName};
+            chrome.storage.local.set(save);
 
+            $nfw_report.css("display", "block");
+        }
         $(this).remove();
     });
 
@@ -71,6 +70,17 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
         var filmwebURL = infoJSON.URL;
         if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName.replace("'",""));
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+filmwebURL+"'>&nbsp;Filmweb&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+        if(infoJSON.v!=1) {
+            destBox.find('#nfw_report').append("<div id='ntw_fw_report'>Filmweb&nbsp;<img id='ntw_fw_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_fw_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
+            destBox.find('#ntw_fw_ok').click(function(){
+                reportWrong(idNetflix, 1, 'fw');
+                destBox.find('#ntw_fw_report').remove();
+            });
+            destBox.find('#ntw_fw_wrong').click(function(){
+                reportWrong(idNetflix, 0, 'fw');
+                destBox.find('#ntw_fw_report').remove();
+            });
+        }
     });
 
     readStore1 = "nflix_"+idNetflix;
@@ -85,6 +95,15 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
         var metacriticURL = infoJSON.URL;
         if(!metacriticURL) metacriticURL='http://www.metacritic.com/search/all/'+encodeURIComponent(titleName.replace("'",""))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced';
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore2+"' href='"+metacriticURL+"'>Metacritic&nbsp;<span class='title_"+readStore2+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+        if(infoJSON.v!=1) destBox.find('#nfw_report').append("<div id='ntw_me_report'>Metacritic&nbsp;<img id='ntw_me_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_me_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
+            destBox.find('#ntw_me_ok').click(function(){
+                reportWrong(idNetflix, 1, 'me');
+                destBox.find('#ntw_me_report').remove();
+            });
+            destBox.find('#ntw_me_wrong').click(function(){
+                reportWrong(idNetflix, 0, 'me');
+                destBox.find('#ntw_me_report').remove();
+            });
     });
 
 
@@ -155,10 +174,8 @@ var observer = new MutationObserver(function( mutations ) {
     	var $nodes = $( newNodes ); // jQuery set
     	$nodes.each(function() {
             if($(this).attr('class') !== undefined){
-                console.log($(this));
                 $(this).find('.title-card-container').each(function(){
                     titleName = $(this).find('.video-preload-title-label:first').text();
-                console.log(titleName);
                     idNetflix = $(this).find('a').attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
                     if(idNetflix) {
                         placeScore(titleName,idNetflix, $(this));

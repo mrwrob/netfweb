@@ -9,9 +9,10 @@ function click(e) {
         chrome.tabs.create({url: "info.html"});
     else if((e.target.id == "report") || (e.target.id == "report_strong")){
         chrome.runtime.sendMessage({type: "report_f", data: $('#data').html()});
-        var save = {};
+/*        var save = {};
         save['clipboard'] = "";
         chrome.storage.local.set(save);
+*/
     } else {
         var save = {};
         save['scoreSource'] = e.target.id;
@@ -46,7 +47,7 @@ chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
         chrome.storage.local.get(readStore, function(data) {
             if(data && data['clipboard']){
                 $('body').append("<div id='report'>Link this site with <br><strong id='report_strong'>"+data['clipboard'].title+"</strong></div>");
-                $('#data').html('"'+data['clipboard'].idNetflix+'": "'+tabs[0].url+'",');
+                $('#data').html(data['clipboard'].idNetflix+','+tabs[0].url);
                 $('#report')[0].addEventListener('click', click);
             }
         });

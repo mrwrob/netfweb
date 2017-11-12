@@ -59,3 +59,33 @@ img.nfw_wrong{
     float: right;
     cursor: pointer;
 }
+
+img.nfw_button{
+    cursor: pointer;
+}
+
+
+
+#nfw_report_a {
+    position:absolute;
+    width: 0px; 
+    height: 0px; 
+}
+
+#nfw_report {
+    position:relative;
+    overflow: visible;
+    float:right;
+    z-index:9000; 
+    bottom: 0px; 
+    width: 150px;
+    left: 400px;
+    border: 2px solid grey; 
+    padding: 10px;
+    background: rgba(200,200,200,0.9);
+    display: none;
+    border-radius: 5px;
+    text-align: right;
+    size: 12px;
+    color: #333;
+}
