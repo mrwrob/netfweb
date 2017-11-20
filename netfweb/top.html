@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Film scores for Netflix</title>
+        <style>
+            body {
+                margin: 0px;
+                padding: 0px;
+                background: #efefef;
+                font-family: sans-serif;
+            }
+
+            a {
+                text-decoration: none;
+                color: #aaa;
+            }
+            div.desc {
+                max-width: 1000px;
+                padding: 5px 10px;
+                font-size: 12pt;
+                margin: 10px auto;
+            }
+
+            h3 {
+                text-align: center;
+                font-size: 20pt;
+            }
+            div.logo_back {
+                width: 100%;
+                height: 180px;
+                background: #111;
+                padding-top: 30px;
+            }
+
+            div.logo_grad {
+                width: 100%;
+                height: 10px;
+                background: linear-gradient(180deg, #111 0%,#555 80%);
+            }
+
+            div.logo_title {
+                width: 255px;
+                margin: 20px auto;
+            }
+
+            h3, h4, p {
+                color: #444;
+            }
+
+            h4 {
+                margin-bottom: 0;
+            }
+
+            h1, h2{
+                width: 180px;
+                float: left;
+                margin: 0;
+                text-align: right;
+                color: #eee;
+            }
+
+            h1 {
+                font-size: 20pt;
+            }
+            h2 {
+                font-size: 18pt;
+            }
+
+            img.netfweb_logo {
+                float: right;
+                margin: 0;
+                margin-top: 10px;
+            }
+
+            div.desc p {
+                margin: 0;
+            }
+
+            div.links {
+                color: #aaa;
+                border-spacing:15px;
+                width: 400px;
+                margin: 100px auto;
+            }
+
+            div.links div{
+                padding: 10px 20px;
+                display: table-cell;
+                font-size: 14pt;
+                border: 1px solid #aaa;
+                border-radius: 5px;
+                margin-right: 5px;
+            }
+
+            div.nfw_score{
+                font-size: 14px;
+                margin-right: 5px;
+                border-radius: 50%;
+                float: left;
+                line-height: 34px;
+
+                width: 34px;
+                height: 34px;
+                text-align: center;
+                vertical-align: center;
+
+                background: rgba(100,100,100,0.7);
+                border: 2px solid #666;
+                color: #FF9;
+                font-weight: bold;
+                text-align: center;
+            }
+
+            div.nfw_score_bob {
+                float: left;
+                font-size: 12px;
+                margin: 8px 0 0 10px;
+                padding: 2px 5px;
+                pointer-events:none;
+
+                text-align: center;
+
+                background: rgba(100,100,100,0.7);
+                border: 2px solid #666;
+                color: #FF9;
+                font-weight: bold;
+                text-align: center;
+                border-radius: 5px;
+            }
+
+            div.nfw_score_jaw {
+                font-size: 14px;
+                padding: 2px 5px;
+                width: 280px;
+                float: left;
+
+                margin: 7px 0 0 10px;
+                background: rgba(100,100,100,0.7);
+                border: 2px solid #666;
+                color: #FF9;
+                font-weight: bold;
+                text-align: center;
+                border-radius: 5px;
+            }
+
+            div.pl {
+                margin-top: 100px;
+            }
+
+        </style>
+        <script type="text/javascript" src="jquery.js"></script>
+    </head>
+    <body>
+        <div class="logo_back">
+            <div class="logo_title">
+                <img class="netfweb_logo" src='icon48.png'>
+                <h2>Film scores for </h2>
+                <h1>Netflix</h1>
+           </div>
+            <div class='links'>
+                <div><a href='#changelog'>changelog</a></div>
+                <div><a href='#about'>about</a></div>
+                <div><a href='#troubleshooting'>troubleshooting</a></div>
+                <div><a href='#pl_help'>polski</a></div>
+            </div>
+         </div>
+        <div class="logo_grad"></div>
+        <div id='list'>
+        </div>
+        <script type="text/javascript" src="top.js"></script>
+
+    </body>
+</html>

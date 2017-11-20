@@ -5,6 +5,8 @@ function click(e) {
         chrome.tabs.reload();
     } else if(e.target.id == "logo") 
         chrome.tabs.create({url: "https://github.com/mrwrob/netfweb"});
+    else if(e.target.id == "top") 
+        chrome.tabs.create({url: "top.html"});
     else if(e.target.id == "help") 
         chrome.tabs.create({url: "info.html"});
     else if((e.target.id == "report") || (e.target.id == "report_strong")){

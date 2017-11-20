@@ -5,6 +5,15 @@ function reportWrong(idNetflix, ok, source){
     chrome.runtime.sendMessage({type: "report", idNetflix: idNetflix, ok: ok, source: source});
 }
 
+function clearMap(idNetflix, source){
+    var itemJSON = JSON.stringify({'URL' : ''});
+    var save = {};
+    save[source+"_"+idNetflix] = itemJSON;
+    chrome.storage.local.set(save);
+}
+
+
+
 function getInfo(data){
     if(data){
         var infoJSON = JSON.parse(data);
@@ -78,6 +87,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
             });
             destBox.find('#ntw_fw_wrong').click(function(){
                 reportWrong(idNetflix, 0, 'fw');
+                clearMap(idNetflix, "filmweb");
                 destBox.find('#ntw_fw_report').remove();
             });
         }
@@ -102,6 +112,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
             });
             destBox.find('#ntw_me_wrong').click(function(){
                 reportWrong(idNetflix, 0, 'me');
+                clearMap(idNetflix, "metacritic");
                 destBox.find('#ntw_me_report').remove();
             });
     });

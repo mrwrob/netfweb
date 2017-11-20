@@ -203,7 +203,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         var newData = request.data.split(",");
         if(newData[1].match(/filmweb/)) parseFilmWeb(newData[0], newData[1]);
         else if(newData[1].match(/metacritic/)) parseMetacritic(newData[0], newData[1]);
-     }
+    }else if(request.type=="getTitle"){
+        $.ajax({
+            url:'https://www.netflix.com/title/'+request.idNetflix,
+            success: function(data) {
+                var re = new RegExp('title has-jawbone-nav-transition[^<]*<div[^>]*[^<]*');
+                var parseTitle=re.exec(data);
+                console.log(parseTitle);
+
+            }
+         });
+
+    }
 });
 
 chrome.runtime.onInstalled.addListener(function(details){
