@@ -119,7 +119,6 @@ function import_maps(){
     readStore["control"] = '';
     chrome.storage.local.get(readStore, function(data){
         if(!data || data["control"]!="df343sds"){
-
             var save = {};
             save["control"] = "df343sds";
             chrome.storage.local.set(save);
@@ -204,15 +203,31 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         if(newData[1].match(/filmweb/)) parseFilmWeb(newData[0], newData[1]);
         else if(newData[1].match(/metacritic/)) parseMetacritic(newData[0], newData[1]);
     }else if(request.type=="getTitle"){
-        $.ajax({
-            url:'https://www.netflix.com/title/'+request.idNetflix,
-            success: function(data) {
-                var re = new RegExp('title has-jawbone-nav-transition[^<]*<div[^>]*[^<]*');
-                var parseTitle=re.exec(data);
-                console.log(parseTitle);
+        window.setTimeout(function(){
+            $.ajax({
+                url:'https://www.netflix.com/title/'+request.idNetflix,
+                success: function(data) {
+                    var re = new RegExp('title has-jawbone-nav-transition[^<]*<div[^>]*[^<]*');
+                    var parseTitle=re.exec(data);
+                    var title="";
+                    if(parseTitle){
+                        title = parseTitle[0].replace(/.*>([^>]*)$/,"$1");
+                    } else {
+                        re = new RegExp('title has-jawbone-nav-transition[^<]*<img alt="[^"]*"');
+                        var parseTitle=re.exec(data);
+                        title = parseTitle[0].replace(/.*img alt="([^"]*)"/,"$1");
 
-            }
-         });
+                    }
+                    re = new RegExp('jawbone-overview-info.*(actionsRow?)');
+                    var parseDesc=re.exec(data);
+                    year = parseDesc[0].replace(/.*class="year"[^>]*>([^<]*)<.*/,"$1");
+                    duration = parseDesc[0].replace(/.*class="duration"[^>]*>[^>]*>([^<]*)<.*/,"$1");
+                    synopsis = parseDesc[0].replace(/.*class="synopsis"[^>]*>([^<]*)<.*/,"$1");
+
+                    chrome.runtime.sendMessage({type: "titleResponse", title: title, idNetflix: request.idNetflix, year: year, duration: duration, synopsis: synopsis});
+                }
+             });  
+        }, Math.random()*5000);
 
     }
 });

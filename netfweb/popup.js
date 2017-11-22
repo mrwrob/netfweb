@@ -1,7 +1,9 @@
     
 function click(e) {
     if(e.target.id == "reload") {
+//        chrome.runtime.sendMessage({type: "reload"});
         chrome.storage.local.clear();
+        chrome.runtime.reload();
         chrome.tabs.reload();
     } else if(e.target.id == "logo") 
         chrome.tabs.create({url: "https://github.com/mrwrob/netfweb"});
