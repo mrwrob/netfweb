@@ -26,7 +26,7 @@ function getInfo(data){
 }
 
 function placeScore(titleName, idNetflix, filmBox){
-    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
+    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "1"});
 
     if(filmBox.find('div.nfw_score').length == 0 || filmBox.find('div.nfw_score').text != '?'){
 
@@ -56,8 +56,8 @@ function placeScoreBob(idNetflix, filmBox){
 }
 
 function placeScoreJaw(titleName, idNetflix, filmBox){
-    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix});
-    chrome.runtime.sendMessage({type: "getScoreMeta", titleName: titleName, idNetflix: idNetflix});
+    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "0"});
+//    chrome.runtime.sendMessage({type: "getScoreMeta", titleName: titleName, idNetflix: idNetflix});
 
     filmBox.before("<div class='nfw_score_jaw'><img class='nfw_wrong' src='"+chrome.extension.getURL("/wrong.png")+"'> <img src='"+chrome.extension.getURL("/star.png")+"'><div id='nfw_report_a'><div id='nfw_report'></div></div> </div>");
     destBox = filmBox.parent().find('.nfw_score_jaw');
@@ -193,11 +193,11 @@ var observer = new MutationObserver(function( mutations ) {
                     }
                 });
                     
-                if($(this).attr('class').match("bob-card")){
-                    idNetflix = $(this).find('a.bob-jaw-hitzone').attr('href').replace(/.*\/title\/([0-9]*).*/,"$1");
-                    if(idNetflix) placeScoreBob(idNetflix, $(this).find('.bob-title'));
-                }
-
+//                if($(this).attr('class').match("bob-card")){
+//                    idNetflix = $(this).find('a.bob-jaw-hitzone').attr('href').replace(/.*\/title\/([0-9]*).*/,"$1");
+//                    if(idNetflix) placeScoreBob(idNetflix, $(this).find('.bob-title'));
+//                }
+//
                 if($(this).attr('class').match(/jawBone(FadeInPlaceContainer|Container|OpenContainer)/)){
                     titleName=$(this).find('div.title').text();
                     if(!titleName){

@@ -36,14 +36,14 @@ function readDB(source){
             }
         }
 
-        var sortArray = scoreArray.sort(compare);
-        var from=0, count=10;
+        sortArray = scoreArray.sort(compare);
         generateList(from, count, sortArray);
 
 
     });
 }
-
+var sortArray =Array();
+var from=0, count=10;
 
 readDB("filmweb");
 

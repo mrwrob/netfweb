@@ -22,7 +22,7 @@ function parseFilmWeb(idNetflix,targetURL, v=0){
     }
 }
 
-function getFilmWeb(request,data){
+function getFilmWeb(request,data, delay){
 
     if(!data["filmweb_"+request.idNetflix]){
         $.ajax({
@@ -43,57 +43,65 @@ function getFilmWeb(request,data){
     }
 }
 
-function parseMetacritic(idNetflix,targetURL, v=0){
-    if(targetURL.match(/metacritic/)){
-        $.ajax({
-            url: targetURL,
-            success: function(data) {
-                var parseURL=/setTargeting\("score", "[^"]*"/.exec(data);
-                var score = "?";
-                if(parseURL !== null){
-                    score = parseURL[0].replace(/setTargeting\("score", "([^"]*)"/,'$1');
-                    var titleName="metacritic_"+idNetflix;
-                    var filmwebJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v });
-                    var save = {};
-                    save[titleName] = filmwebJSON;
-                    chrome.storage.local.set(save);
-                }
-            }
+function parseMetacritic(idNetflix,targetURL, delay, v=0){
 
-        });
+    if(targetURL.match(/metacritic/)){
+        window.setTimeout(function(){
+
+            $.ajax({
+                url: targetURL,
+                success: function(data) {
+                    var parseURL=/setTargeting\("score", "[^"]*"/.exec(data);
+                    var score = "?";
+                    if(parseURL !== null){
+                        score = parseURL[0].replace(/setTargeting\("score", "([^"]*)"/,'$1');
+                        var titleName="metacritic_"+idNetflix;
+                        var filmwebJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v });
+                        var save = {};
+                        save[titleName] = filmwebJSON;
+                        chrome.storage.local.set(save);
+                    }
+                }
+
+            });
+
+        }, Math.random()*delay/3);
     }
 }
 
 
 
-function getMetacritic(request, data){
+function getMetacritic(request, data, delay){
     if(!data["metacritic_"+request.idNetflix]){
-       $.ajax({
-            url:'http://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName.replace("'",""))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
-            success: function(data) {
-                var re = new RegExp('<a href[^>]*>'+request.titleName.replace(/[ \'-;,]/g,'.')+' *<', 'i');
-                var parseURL=re.exec(data);
-                if(parseURL == null){
-                    re = new RegExp('<a href[^>]*>[^<]*'+request.titleName.replace(/[ \'-;,]/g,'.')+'[^<]*<', 'i');
-                    parseURL=re.exec(data);
+
+        window.setTimeout(function(){
+            $.ajax({
+                url:'http://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName.replace("'",""))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
+                success: function(data) {
+                    var re = new RegExp('<a href[^>]*>'+request.titleName.replace(/[ \'-;,]/g,'.')+' *<', 'i');
+                    var parseURL=re.exec(data);
+                    if(parseURL == null){
+                        re = new RegExp('<a href[^>]*>[^<]*'+request.titleName.replace(/[ \'-;,]/g,'.')+'[^<]*<', 'i');
+                        parseURL=re.exec(data);
+                    }
+                    if(parseURL !== null){
+                        var targetURL = "http://www.metacritic.com"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
+                        parseMetacritic(request.idNetflix,targetURL, delay);
+                    }
                 }
-                if(parseURL !== null){
-                    var targetURL = "http://www.metacritic.com"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
-                    parseMetacritic(request.idNetflix,targetURL);
-                }
-            }
-        });
+            })}, Math.random()*delay);
     }else {
+
         item = JSON.parse(data["metacritic_"+request.idNetflix]);
         if(!item.score && item.URL) {
-            parseMetacritic(request.idNetflix,item.URL, item.v);
+            parseMetacritic(request.idNetflix,item.URL, delay, item.v);
         }
     }
 }
 
 
 
-function getNflix(request,data){
+function getNflix(request,data, delay){
 
     if(!data["nflix_"+request.idNetflix]){
         $.ajax({
@@ -156,16 +164,35 @@ function send_report_c(data){
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     if((request.type=="getScore")&&(request.idNetflix)){
-        var readStore = {};
-        readStore["filmweb_"+request.idNetflix] = '';
-        chrome.storage.local.get(readStore, function(data){
-            getFilmWeb(request,data) ;
-        });
+        var delay=10;
+        if(request.all=="1") delay=30000;
+        var readStore = "scoreSource";
+        chrome.storage.local.get(readStore, function(data) {
+            var scoreSource='filmweb';
+            if(data && data.scoreSource) scoreSource = data.scoreSource;
 
-        readStore = {};
-        readStore["nflix_"+request.idNetflix] = '';
-        chrome.storage.local.get(readStore, function(data){
-            getNflix(request,data) ;
+            var readStore = {};
+            if((request.all=="0") || (scoreSource=='filmweb')){
+                readStore["filmweb_"+request.idNetflix] = '';
+                chrome.storage.local.get(readStore, function(data){
+                    getFilmWeb(request,data, delay);
+                });
+            }
+
+            if((request.all=="0") || (scoreSource=='nflix')){
+                readStore = {};
+                readStore["nflix_"+request.idNetflix] = '';
+                chrome.storage.local.get(readStore, function(data){
+                    getNflix(request,data, delay) ;
+                });
+            }
+            if((request.all=="0") || (scoreSource=='metacritic')){
+                readStore = {};
+                readStore["metacritic_"+request.idNetflix] = '';
+                chrome.storage.local.get(readStore, function(data){
+                     getMetacritic(request, data, delay) ;
+                });
+            }
         });
 
     } else if((request.type=="getScoreMeta")&&(request.idNetflix)){
