@@ -77,7 +77,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     chrome.storage.local.get(readStore, function(data) {
         var infoJSON = getInfo(data[readStore]);
         var filmwebURL = infoJSON.URL;
-        if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName.replace("'",""));
+        if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName.replace("'"," "));
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+filmwebURL+"'>&nbsp;Filmweb&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
         if(infoJSON.v!=1) {
             destBox.find('#nfw_report').append("<div id='ntw_fw_report'>Filmweb&nbsp;<img id='ntw_fw_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_fw_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
@@ -103,7 +103,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     chrome.storage.local.get(readStore2, function(data) {
         var infoJSON = getInfo(data[readStore2]);
         var metacriticURL = infoJSON.URL;
-        if(!metacriticURL) metacriticURL='http://www.metacritic.com/search/all/'+encodeURIComponent(titleName.replace("'",""))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced';
+        if(!metacriticURL) metacriticURL='http://www.metacritic.com/search/all/'+encodeURIComponent(titleName.replace("'"," "))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced';
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore2+"' href='"+metacriticURL+"'>Metacritic&nbsp;<span class='title_"+readStore2+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
         if(infoJSON.v!=1) destBox.find('#nfw_report').append("<div id='ntw_me_report'>Metacritic&nbsp;<img id='ntw_me_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_me_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
             destBox.find('#ntw_me_ok').click(function(){
@@ -117,6 +117,24 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
             });
     });
 
+    readStore3 = "imdb_"+idNetflix;
+    chrome.storage.local.get(readStore3, function(data) {
+        var infoJSON = getInfo(data[readStore3]);
+        console.log(infoJSON);
+        var imdbURL = infoJSON.URL;
+        if(!imdbURL) imdbURL='http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q='+encodeURIComponent(titleName.replace("'"," "));
+        destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore3+"' href='"+imdbURL+"'>IMDb&nbsp;<span class='title_"+readStore3+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+        if(infoJSON.v!=1) destBox.find('#nfw_report').append("<div id='ntw_im_report'>IMDb&nbsp;<img id='ntw_im_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_im_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
+            destBox.find('#ntw_im_ok').click(function(){
+                reportWrong(idNetflix, 1, 'im');
+                destBox.find('#ntw_im_report').remove();
+            });
+            destBox.find('#ntw_im_wrong').click(function(){
+                reportWrong(idNetflix, 0, 'im');
+                clearMap(idNetflix, "imdb");
+                destBox.find('#ntw_im_report').remove();
+            });
+    });
 
 }
 

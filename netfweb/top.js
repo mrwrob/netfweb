@@ -69,3 +69,8 @@ $('#filmweb').click(function(){
     readDB("filmweb");
 });
 
+$('#imdb').click(function(){
+    readDB("imdb");
+});
+
+
