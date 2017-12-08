@@ -37,7 +37,7 @@ function getFilmWeb(request,data, delay){
         });
     } else {
         item = JSON.parse(data["filmweb_"+request.idNetflix]);
-        if(item.URL && (!item.score || request.all==1)) {
+        if(item.URL && (!item.score || request.all==0)) {
             parseFilmWeb(request.idNetflix,item.URL, item.v);
         }
     }
@@ -93,7 +93,7 @@ function getMetacritic(request, data, delay){
     }else {
 
         item = JSON.parse(data["metacritic_"+request.idNetflix]);
-        if(item.URL && (!item.score || request.all == 1) ) {
+        if(item.URL && (!item.score || request.all == 0) ) {
             parseMetacritic(request.idNetflix,item.URL, delay, item.v);
         }
     }
