@@ -214,7 +214,6 @@ function import_maps(){
                 var save = {};
                 save["imdb_"+i] = itemJSON;
                 chrome.storage.local.set(save);
-                console.log(save);
             }
 
         }
