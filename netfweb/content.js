@@ -60,6 +60,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
 //    chrome.runtime.sendMessage({type: "getScoreMeta", titleName: titleName, idNetflix: idNetflix});
 
     filmBox.before("<div class='nfw_score_jaw'><img class='nfw_wrong' src='"+chrome.extension.getURL("/wrong.png")+"'> <img src='"+chrome.extension.getURL("/star.png")+"'><div id='nfw_report_a'><div id='nfw_report'></div></div> </div>");
+    filmBox.before("<div class='nfw_related'><a href='https://www.netflix.com/search?q=%20&suggestionId="+idNetflix+"_video'>related titles...</a></div>");
     destBox = filmBox.parent().find('.nfw_score_jaw');
     destBox.find(".nfw_wrong").click(function(){
         $nfw_report=$(this).parent().find('#nfw_report');
@@ -77,7 +78,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     chrome.storage.local.get(readStore, function(data) {
         var infoJSON = getInfo(data[readStore]);
         var filmwebURL = infoJSON.URL;
-        if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName.replace("'"," "));
+        if(!filmwebURL) filmwebURL='http://www.filmweb.pl/search?q='+encodeURIComponent(titleName).replace("'","%27");
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+filmwebURL+"'>&nbsp;Filmweb&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
         if(infoJSON.v!=1) {
             destBox.find('#nfw_report').append("<div id='ntw_fw_report'>Filmweb&nbsp;<img id='ntw_fw_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_fw_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
@@ -120,7 +121,6 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     readStore3 = "imdb_"+idNetflix;
     chrome.storage.local.get(readStore3, function(data) {
         var infoJSON = getInfo(data[readStore3]);
-        console.log(infoJSON);
         var imdbURL = infoJSON.URL;
         if(!imdbURL) imdbURL='http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q='+encodeURIComponent(titleName.replace("'"," "));
         destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore3+"' href='"+imdbURL+"'>IMDb&nbsp;<span class='title_"+readStore3+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");

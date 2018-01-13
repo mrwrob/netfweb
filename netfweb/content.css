@@ -50,6 +50,13 @@ div.nfw_score_jaw {
     border-radius: 5px;
 }
 
+div.nfw_related {
+    font-size: 14px;
+    float: right;
+}
+
+
+
 a.nfw_jaw_link {
     color: #FF9;
 

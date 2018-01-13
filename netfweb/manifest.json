@@ -1,20 +1,18 @@
 {
   "manifest_version": 2,
- 
+
   "name": "Film scores for Netflix",
   "short_name": "netfweb",
-  "version": "0.4.1",
+  "version": "0.4.11",
   "description": "Extension enriches netflix browser with a rating based on the scores from IMDb.com, FilmWeb.pl, Netflix.pl and Metacritic.com sites.",
   "permissions": [
-    "https://github.com/mrwrob/netfweb",
-    "https://www.nflix.pl/", 
-    "https://www.netflix.com/", 
-    "http://api.nflix.pl/", 
+    "https://www.netflix.com/",
+    "http://api.nflix.pl/",
     "http://www.filmweb.pl/",
-    "http://lina.pl/",
     "http://www.metacritic.com/",
-    "https://unogs.com/",
     "http://www.imdb.com/",
+    "http://lina.pl/",
+    "https://unogs.com/",
     "storage",
     "webRequest",
     "webRequestBlocking",
@@ -24,17 +22,17 @@
 
  "icons": { "16": "icon16.png" , "48": "icon48.png", "128": "icon128.png" },
 
-  "browser_action": { 
+  "browser_action": {
     "default_icon": { "16": "icon16.png" , "48": "icon48.png", "128": "icon128.png" },
     "default_title": "Film scores for Netflix",
     "default_popup": "popup.html"
   },
- 
+
   "content_scripts": [{
     "matches": ["https://www.netflix.com/*"],
     "js": ["jquery.js", "content.js"],
     "css": ["content.css"]
-  }], 
+  }],
 
   "background": {
     "scripts": ["jquery.js", "map_imdb.js", "map_filmweb.js", "map_metacritic.js", "background.js"],

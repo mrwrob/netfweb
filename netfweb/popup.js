@@ -1,15 +1,13 @@
-    
+
 function click(e) {
     if(e.target.id == "reload") {
 //        chrome.runtime.sendMessage({type: "reload"});
         chrome.storage.local.clear();
         chrome.runtime.reload();
         chrome.tabs.reload();
-    } else if(e.target.id == "logo") 
-        chrome.tabs.create({url: "https://github.com/mrwrob/netfweb"});
-    else if(e.target.id == "top") 
+    } else if(e.target.id == "top") 
         chrome.tabs.create({url: "top.html"});
-    else if(e.target.id == "help") 
+    else if(e.target.id == "help")
         chrome.tabs.create({url: "info.html"});
     else if((e.target.id == "report") || (e.target.id == "report_strong")){
         chrome.runtime.sendMessage({type: "report_f", data: $('#data').html()});
@@ -56,5 +54,5 @@ chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
             }
         });
     }
- 
+
 });
