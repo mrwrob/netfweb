@@ -1,15 +1,19 @@
+
+/* Comparator of ratings */
 function compare(a, b) {
     a = a.replace(/;.*/,"").replace(/,/g,".");
     b = b.replace(/;.*/,"").replace(/,/g,".");
     return b-a;
 }
 
+/* Updates information about titles */
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     if(request.type=="titleResponse"){
         $('#id_'+request.idNetflix).append("<h3><a target='_blank' href='https://www.netflix.com/title/"+request.idNetflix+"'>"+request.title+"</a></h3><h4>"+request.year+" / "+request.duration+"</h4> <p>"+request.synopsis+"</p>");
     }
 });
 
+/* Generates list of titles sorted by ratings */
 function generateList(from, count, sortArray){
     $('#list').html("");
     for(var a=from; a<from+count; a++){
@@ -19,6 +23,7 @@ function generateList(from, count, sortArray){
     }
 }
 
+/* Reades list of titles from storage */
 function readDB(source){
     chrome.storage.local.get(null, function(items) {
         var scoreArray = new Array();
@@ -35,13 +40,11 @@ function readDB(source){
                 }
             }
         }
-
         sortArray = scoreArray.sort(compare);
         generateList(from, count, sortArray);
-
-
     });
 }
+
 var sortArray =Array();
 var from=0, count=10;
 
@@ -51,6 +54,7 @@ $('#next').click(function(){
     from+=count;
     generateList(from, count, sortArray);
 });
+
 $('#prev').click(function(){
     if(from-count<0) from=0;
     else from-=count;
@@ -72,5 +76,3 @@ $('#filmweb').click(function(){
 $('#imdb').click(function(){
     readDB("imdb");
 });
-
-

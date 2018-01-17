@@ -1,13 +1,25 @@
 $('body').append("<div id='hidden'></div>");
 
-function saveScore(titleName, score, targetURL, v){
+/**
+ * Saves information about rating, and URL in data storage
+ * @param {string} storageID - ID of stored score: sourceWebsite_idNetflix
+ * @param {string} score - rating provided by website
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} v - verification status (1 - verified, 0 - unverified)
+ */
+function saveScore(storageID, score, targetURL, v){
     var filmwebJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v });
     var save = {};
-    save[titleName] = filmwebJSON;
+    save[storageID] = filmwebJSON;
     chrome.storage.local.set(save);
 }
 
-
+/**
+ * Parse the Filmweb website to get the title's rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} v - verification status (1 - verified, 0 - unverified)
+ */
 function parseFilmWeb(idNetflix,targetURL, v=0){
     if((targetURL.match(/filmweb/)) && (! targetURL.match(/(undefined|news|person|user|videogame)/))){
         $.ajax({
@@ -17,23 +29,25 @@ function parseFilmWeb(idNetflix,targetURL, v=0){
                 var score = "?";
                 if(parseURL !== null){
                     score = parseURL[0].replace(/.*"([^"]*)"/,'$1');
-                    var titleName="filmweb_"+idNetflix;
-                    saveScore(titleName, score, targetURL, v);
+                    var storageID="filmweb_"+idNetflix;
+                    saveScore(storageID, score, targetURL, v);
                 }
             }
-
         });
     }
 }
 
-function getFilmWeb(request,data, delay){
-
-    if(!data["filmweb_"+request.idNetflix]){
-      console.log("filmweb_"+request.idNetflix);
+/**
+ * Searches for the Filmweb website with title's rating
+ * @param {json} request - JSON with information about title (idNetflix, titleName)
+ * @param {object} data - data read from storage
+ * @param {integer} delay - number of delay before fetching website
+ */
+function getFilmWeb(request, data, delay){
+    if(!data["filmweb_"+request.idNetflix]){  // data about title not available in storage
         $.ajax({
             url:'http://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName).replace("'","%27"),
             success: function(data) {
-
                     var re = new RegExp('data-title="'+request.titleName.replace(/[ \'-;,]/g,'.').replace(/[ęóąśłżźćńĘÓĄŚŁŻŹĆŃ]/g,'[^"]*')+'".*?class="filmPreview__filmTime"', 'im');
                     //var re = new RegExp('data-title=.*?class="filmPreview__filmTime"', 'im');
                     var parseURL=re.exec(data);
@@ -46,16 +60,9 @@ function getFilmWeb(request,data, delay){
                         var targetURL = "http://www.filmweb.pl"+parseURL[0].replace(/.*?class="filmPreview__link" href="([^"]*)".*/,'$1');
                         parseFilmWeb(request.idNetflix,targetURL, delay);
                     }
-
-
-//                var parseURL=/<a href[^>]*hitTitle/.exec(data);
-//                if(parseURL !== null){
-//                    var targetURL = "http://www.filmweb.pl"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
-//                    parseFilmWeb(request.idNetflix,targetURL);
-//                }
             }
         });
-    } else {
+    } else { // data about title already in storage
         item = JSON.parse(data["filmweb_"+request.idNetflix]);
         if(item.URL && (!item.score || request.all==0)) {
             parseFilmWeb(request.idNetflix,item.URL, item.v);
@@ -63,11 +70,16 @@ function getFilmWeb(request,data, delay){
     }
 }
 
+/**
+ * Parse the Metcritic website to get the title's rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} delay - number of delay before fetching website
+ * @param {integer} v - verification status (1 - verified, 0 - unverified)
+ */
 function parseMetacritic(idNetflix,targetURL, delay, v=0){
-
     if(targetURL.match(/metacritic/)){
         window.setTimeout(function(){
-
             $.ajax({
                 url: targetURL,
                 success: function(data) {
@@ -81,16 +93,18 @@ function parseMetacritic(idNetflix,targetURL, delay, v=0){
                }
 
             });
-
         }, Math.random()*delay/3);
     }
 }
 
-
-
+/**
+ * Searches for the Metcritic website with title's rating
+ * @param {json} request - JSON with information about title (idNetflix, titleName)
+ * @param {object} data - data read from storage
+ * @param {integer} delay - number of delay before fetching website
+ */
 function getMetacritic(request, data, delay){
-    if(!data["metacritic_"+request.idNetflix]){
-      console.log("meta_"+request.idNetflix);
+    if(!data["metacritic_"+request.idNetflix]){  // data about title not available in storage
         window.setTimeout(function(){
             $.ajax({
                 url:'http://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName.replace("'"," "))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
@@ -107,8 +121,7 @@ function getMetacritic(request, data, delay){
                     }
                 }
             })}, Math.random()*delay);
-    }else {
-
+    }else { // data about title already in storage
         item = JSON.parse(data["metacritic_"+request.idNetflix]);
         if(item.URL && (!item.score || request.all == 0) ) {
             parseMetacritic(request.idNetflix,item.URL, delay, item.v);
@@ -116,12 +129,16 @@ function getMetacritic(request, data, delay){
     }
 }
 
-
+/**
+ * Parse the IMDb website to get the title's rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} delay - number of delay before fetching website
+ * @param {integer} v - verification status (1 - verified, 0 - unverified)
+ */
 function parseIMDB(idNetflix,targetURL, delay, v=0){
-
     if(targetURL.match(/imdb/)){
         window.setTimeout(function(){
-
             $.ajax({
                 url: targetURL,
                 success: function(data) {
@@ -140,12 +157,16 @@ function parseIMDB(idNetflix,targetURL, delay, v=0){
     }
 }
 
-
+/**
+ * Searches for the Metcritic website with title's rating
+ * @param {json} request - JSON with information about title (idNetflix, titleName)
+ * @param {object} data - data read from storage
+ * @param {integer} delay - number of delay before fetching website
+ */
 function getIMDB(request, data, delay){
-    if(!data["imdb_"+request.idNetflix]){
-      console.log("imdb_"+request.idNetflix);
+    if(!data["imdb_"+request.idNetflix]){ // data about title not available in storage
         window.setTimeout(function(){
-            $.ajax({
+            $.ajax({ // Try UNOGS website
                 url:'https://unogs.com/nf.cgi?t=loadvideo&q='+request.idNetflix,
                 beforeSend: function(request) {
                     request.setRequestHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
@@ -168,7 +189,7 @@ function getIMDB(request, data, delay){
                     }
                 },
                 error: function (r, status, error) {
-                    $.ajax({
+                    $.ajax({ // Search directly on the IMDb website
                         url:'http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q='+encodeURIComponent(request.titleName.replace("'"," ")),
                         success: function(data) {
                             var re = new RegExp('primary_photo"> <a href="/title/[^>]*>', 'i');
@@ -181,8 +202,7 @@ function getIMDB(request, data, delay){
                     })
                 }
             })}, Math.random()*delay);
-    }else {
-
+    }else { // data about title already in storage
         item = JSON.parse(data["imdb_"+request.idNetflix]);
         if(item.URL && (!item.score || request.all == 0) ) {
             parseIMDB(request.idNetflix,item.URL, delay, item.v);
@@ -190,10 +210,13 @@ function getIMDB(request, data, delay){
     }
 }
 
-
-
+/**
+ * Get Nflix rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} delay - number of delay before fetching website
+ */
 function getNflix(request,data, delay){
-
     if(!data["nflix_"+request.idNetflix]){
         $.ajax({
             url:'http://api.nflix.pl/api_netflix_rating/?k=Lhygft5dfrte4&o=r&c=pl&netflix_id='+request.idNetflix,
@@ -208,52 +231,52 @@ function getNflix(request,data, delay){
                         chrome.storage.local.set(save);
                 }
              }
-
          });
     }
 }
 
+/**
+ * Update storege with new mapping between source service URL and title
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} source - rating website name (filmweb, metacritic, imdb)
+ * @param {string} sourceURL - rating website name URL
+ */
+function update_map(idNetflix, source, sourceURL){
+  var readStore = source+"_"+idNetflix;
+  chrome.storage.local.get(readStore, function(data) {
+    var itemJSON = JSON.stringify({'URL' : sourceURL, 'v': '1' });
+    if(data[readStore]){
+      var storageJSON = JSON.parse(data[readStore]);
+      if(storageJSON.score) {
+        itemJSON = JSON.stringify({'URL' : sourceURL, 'score': storageJSON.score, 'v': '1' });
+      }
+    }
+    var save = {};
+    save[readStore] = itemJSON;
+    chrome.storage.local.set(save);
+  });
+}
+
+/**
+ * Update storege based on verified mappings from JSON files
+ */
 function import_maps(){
     var readStore = {};
     readStore["control"] = '';
     chrome.storage.local.get(readStore, function(data){
-//        if(!data || data["control"]!="df343sds"){
-            var save = {};
-            save["control"] = "df343sds";
-            chrome.storage.local.set(save);
-
-            for (var i in  map_filmweb){
-                var itemJSON = JSON.stringify({'URL' : "http://www.filmweb.pl/"+map_filmweb[i], 'v': '1' });
-                var save = {};
-                save["filmweb_"+i] = itemJSON;
-                chrome.storage.local.set(save);
-            }
-
-            for (var i in  map_metacritic){
-                var itemJSON = JSON.stringify({'URL' : 'http://www.metacritic.com/'+map_metacritic[i], 'v': '1' });
-                var save = {};
-                save["metacritic_"+i] = itemJSON;
-                chrome.storage.local.set(save);
-            }
-
-            for (var i in  map_imdb){
-                var itemJSON = JSON.stringify({'URL' : 'http://www.imdb.com/'+map_imdb[i], 'v': '1' });
-                var save = {};
-                save["imdb_"+i] = itemJSON;
-                chrome.storage.local.set(save);
-            }
-
-  //      }
-
-        map_filmweb="";
-        map_metacritic="";
-        map_imdb="";
-
+      for (var idNetflix in  map_filmweb) update_map(idNetflix, 'filmweb', 'http://www.filmweb.pl/'+map_filmweb[idNetflix]);
+      for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'http://www.metacritic.com/'+map_metacritic[idNetflix]);
+      for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'http://www.imdb.com/'+map_imdb[idNetflix]);
+      map_filmweb="";
+      map_metacritic="";
+      map_imdb="";
     });
-
-
 }
 
+/**
+ * Sends report with verifications and new mappings between source service URL and title
+ * @param {json} data - mapping between source service URL and title's netflix ID
+ */
 function send_report_c(data){
     $.ajax({
         method: "POST",
@@ -262,8 +285,11 @@ function send_report_c(data){
     });
 }
 
+/* Listens and handles messages sent from content.js */
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
+
     if((request.type=="getScore")&&(request.idNetflix)){
+    /* Request for rating information */
         var delay=10;
         if(request.all=="1") delay=30000;
         var readStore = "scoreSource";
@@ -275,15 +301,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             if((request.all=="0") || (scoreSource=='filmweb')){
                 readStore["filmweb_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
-                    getFilmWeb(request,data, delay);
+                    getFilmWeb(request, data, delay);
                 });
             }
-
             if((request.all=="0") || (scoreSource=='nflix')){
                 readStore = {};
                 readStore["nflix_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
-                    getNflix(request,data, delay) ;
+                    getNflix(request, data, delay) ;
                 });
             }
             if((request.all=="0") || (scoreSource=='metacritic')){
@@ -300,16 +325,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                      getIMDB(request, data, delay) ;
                 });
             }
-
         });
 
-    } else if((request.type=="getScoreMeta")&&(request.idNetflix)){
-        var readStore = {};
-        readStore["metacritic_"+request.idNetflix] = '';
-        chrome.storage.local.get(readStore, function(data){
-             getMetacritic(request, data) ;
-        });
     }else if(request.type=="report"){
+   /* Request for sending report */
         if(request.ok){
             var readStore1 = "";
             if(request.source=='fw') readStore1 = "filmweb_"+request.idNetflix;
@@ -328,15 +347,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                 data: { idNetflix: request.idNetflix }
             });
         }
-    }else if(request.type=="report_f"){
-/*        $.ajax({
-            method: "POST",
-            url: "http://lina.pl/netfweb/report_f.php",
-            data: { data: request.data }
-        });
-*/
-        var newData = request.data.split(",");
 
+    }else if(request.type=="report_f"){
+    /* Request for updating mapping called from popup.js */
+        var newData = request.data.split(",");
         if(newData[1].match(/filmweb/)) {
             parseFilmWeb(newData[0], newData[1], 1);
             saveScore("filmweb_"+newData[0], '?', newData[1], '0');
@@ -347,7 +361,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             parseIMDB(newData[0], newData[1], 1);
             saveScore("imdb_"+newData[0], '?', newData[1], '0');
         }
+
     }else if(request.type=="getTitle"){
+    /* Request for getting details about title called from top.js */
         window.setTimeout(function(){
             $.ajax({
                 url:'https://www.netflix.com/title/'+request.idNetflix,
@@ -361,14 +377,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                         re = new RegExp('title has-jawbone-nav-transition[^<]*<img alt="[^"]*"');
                         var parseTitle=re.exec(data);
                         title = parseTitle[0].replace(/.*img alt="([^"]*)"/,"$1");
-
                     }
                     re = new RegExp('jawbone-overview-info.*(actionsRow?)');
                     var parseDesc=re.exec(data);
                     year = parseDesc[0].replace(/.*class="year"[^>]*>([^<]*)<.*/,"$1");
                     duration = parseDesc[0].replace(/.*class="duration"[^>]*>[^>]*>([^<]*)<.*/,"$1");
                     synopsis = parseDesc[0].replace(/.*class="synopsis"[^>]*>([^<]*)<.*/,"$1");
-
                     chrome.runtime.sendMessage({type: "titleResponse", title: title, idNetflix: request.idNetflix, year: year, duration: duration, synopsis: synopsis});
                 }
              });
@@ -377,6 +391,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
     }
 });
 
+/* Displays information about extension and updates mapping on update or installation */
 chrome.runtime.onInstalled.addListener(function(details){
     if(details.reason == "install"){
         window.open(chrome.extension.getURL("/info.html"));
@@ -386,10 +401,10 @@ chrome.runtime.onInstalled.addListener(function(details){
         if((currVersion[0]>prevVersion[0]) || (currVersion[1]>prevVersion[1]))
             window.open(chrome.extension.getURL("/info.html"));
     }
-//    chrome.storage.local.clear();
     import_maps();
 });
 
+/* Changes headers before fetching ungos website */
 chrome.webRequest.onBeforeSendHeaders.addListener(function(details){
     var newRef = "http://unogs.com";
     var gotRef = false;

@@ -11,10 +11,19 @@
                 font-family: sans-serif;
             }
 
-            a {
+            div.links a {
                 text-decoration: none;
                 color: #aaa;
             }
+
+            a {
+                color: #a00;
+            }
+
+            p{
+                padding-bottom: 5px;
+            }
+
             div.desc {
                 max-width: 1000px;
                 padding: 5px 10px;
@@ -25,6 +34,7 @@
             h3 {
                 text-align: center;
                 font-size: 20pt;
+                margin-bottom: 5px;
             }
             div.logo_back {
                 width: 100%;
@@ -132,7 +142,7 @@
             div.nfw_score_jaw {
                 font-size: 14px;
                 padding: 2px 5px;
-                width: 280px;
+                width: 480px;
                 float: left;
 
                 margin: 7px 0 0 10px;
@@ -166,15 +176,28 @@
          </div>
         <div class="logo_grad"></div>
         <div class='desc'>
+            <h3>about</h3><a name='about'></a>
+            <p>Since Netflix replaced stars with a thumbs rating system, it has become <a href='https://www.forbes.com/sites/insertcoin/2017/06/26/netflixs-thumb-based-ratings-system-is-the-epitome-of-uselessness'>very painful</a> to find interesting stuff.
+              This Open Source extension enriches netflix browser with a rating based on the scores from IMDb.com, FilmWeb.pl, Netflix.pl and Metacritic.com sites.
+              Source code and issue tracking system available on <a href='https://github.com/mrwrob/netfweb'>GitHub</a>.
+            </p>
+            <p><div class='nfw_score'>8,8</div><div class='nfw_score_jaw'><img src='star.png'> Filmweb 8,8 <img src='star.png'> Nflix 8,21 <img src='star.png'> Metacritic 71 <img src='star.png'> IMDb 7,31 <img src='star.png'> </div></p>
+        </div>
+
+        <div class='desc'>
             <h3>we need your help!</h3>
-            <p>
-            Check out this <a style='color:red' href='https://www.youtube.com/watch?v=73eLVFmL0lo&hl=en&cc_lang_pref=en&cc_load_policy=1'>video</a> to learn how you can contribute to delivering more relevant ratings.
+              <p style='clear: both'> Rate "Film scores for Netflix" in <a href='https://chrome.google.com/webstore/detail/film-scores-for-netflix/mpebmkidaokicofipeckbobdecghpcil'> Chrome Web Store </a> or
+                <a href="https://addons.mozilla.org/en-US/android/addon/film-scores-for-netflix/"> Firefox Add-ons </a>.</p>
+                <p>
+            Check out this <a href='https://www.youtube.com/watch?v=73eLVFmL0lo&hl=en&cc_lang_pref=en&cc_load_policy=1'>video</a> to learn how you can contribute to delivering more relevant ratings.
             </p>
         </div>
 
 
         <div class='desc'>
             <h3>changelog</h3><a name='changelog'></a>
+            <h4> 0.5.0</h4>
+            <p> Source code refactoring. Several bugfixes.</p>
             <h4> 0.4.11</h4>
             <p> Another changes on Filmweb site.</p>
             <h4> 0.4.10</h4>
@@ -245,13 +268,6 @@
             <h4> 0.1.2</h4>
             <p>Displaying scores on details boxes (both bob/small and jaw/big). Link to filmweb site.</p>
         </div>
-        <div class='desc'>
-            <h3>about</h3><a name='about'></a>
-            <p>Extension enriches netflix browser with a rating based on the scores from FilmWeb.pl and Nflix.pl sites.</p>
-
-            <p>Since Netflix replaced stars with a thumbs rating system, it has become <a href='https://www.forbes.com/sites/insertcoin/2017/06/26/netflixs-thumb-based-ratings-system-is-the-epitome-of-uselessness'>very painful</a> to find interesting stuff. This Chrome extension brings the score rating back to the Netflix browser. Ratings on a scale 0-10, are currently provided by the FilmWeb.pl, the largest Polish online film database, and the Nflix.pl.</p>
-            <p><div class='nfw_score'>8,8</div><div class='nfw_score_bob'>Filmweb 8,8</div><div class='nfw_score_bob'>Nflix.pl 8,21</div><div class='nfw_score_jaw'><img src='star.png'> Filmweb 8,8 <img src='star.png'> Nflix.pl 8,21 <img src='star.png'> </div></p>
-        </div>
         <div style='clear:both'></div>
         <div class='desc'>
             <h3>troubleshooting</h3><a name='troubleshooting'></a>
@@ -274,16 +290,28 @@
             </div>
          </div>
         <div class="logo_grad"></div>
+
+        <div class='desc'>
+           <h3>o wtyczce</h3><a name='about_pl'></a>
+           <p> Odkąd Netflix zmienił system oceniania filmów z gwiazdek na system rekomendacji "łapka w górę/dół", wyszukiwanie wartościowych pozycji stało się... utrudnione. To rozszerzenie przywraca ocenę poszczególnych filmów i seriali na strony Netfliksa. Prezentowany ranking pochodzi z największego polskiego serwisu poświeconego filmom - FilmWeb.pl, oraz z serwisów Nflix.pl, Metacritic i IMDb.</p>
+           <p>Rozszerzenie jest dostępne na zasadach Open Source, kod źródłowy i system zgłaszania uwag dostęþny jest w serwisie  <a href='https://github.com/mrwrob/netfweb'>GitHub</a>.
+            <p><div class='nfw_score'>8,8</div><div class='nfw_score_bob'>Filmweb 8,8</div><div class='nfw_score_bob'>Nflix.pl 8,21</div><div class='nfw_score_jaw'><img src='star.png'> Filmweb 8,8 <img src='star.png'> Nflix.pl 8,21 <img src='star.png'> </div></p>
+        </div>
+
         <div class='desc'>
             <h3>potrzebujemy Twojej pomocy!</h3>
+            <p style='clear: both'> Oceń rozszerzenie "Film scores for Netflix" w <a href='https://chrome.google.com/webstore/detail/film-scores-for-netflix/mpebmkidaokicofipeckbobdecghpcil'> Sklepie Chrome (Web Store)</a> lub
+              <a href="https://addons.mozilla.org/en-US/android/addon/film-scores-for-netflix/"> Firefox Add-ons </a>.</p>
             <p>
-            Obejrzyj <a style='color:red' href='https://www.youtube.com/watch?v=73eLVFmL0lo&hl=pl&cc_lang_pref=pl&cc_load_policy=1'>film</a>, w którym wyjaśniamy jak możesz pomóc w dostarczaniu bardziej trafnych ocen.
+            Obejrzyj <a href='https://www.youtube.com/watch?v=73eLVFmL0lo&hl=pl&cc_lang_pref=pl&cc_load_policy=1'>film</a>, w którym wyjaśniamy jak możesz pomóc w dostarczaniu bardziej trafnych ocen.
             </p>
         </div>
 
 
         <div class='desc'>
             <h3>zmiany</h3><a name='changelog_pl'></a>
+            <h4> 0.5.0</h4>
+            <p> Refaktoryzacja kodu źródłowego. Usunięte drobne błędy.</p>
             <h4> 0.4.11</h4>
             <p> Kolejne zmianamy na stronach Filmweb.
             <h4> 0.4.10</h4>
@@ -356,13 +384,7 @@
             <h4> 0.1.2</h4>
             <p>Wyświetlanie szczegółowych informacji w okach szczegółów. Linki do serwisu Filmweb.pl.</p>
         </div>
-        <div class='desc'>
-           <h3>o wtyczce</h3><a name='about_pl'></a>
-           <p>Rozszerzenie wzbogaca stronę Netfliksa o oceny dostęnych pozycji na podstawie danych z serwisów FilmWeb.pl oraz Nflix.pl.</p>
 
-           <p> Odkąd Netflix zmienił system oceniania filmów z gwiazdek na system rekomendacji "łapka w górę/dół", wyszukiwanie wartościowych pozycji stało się... utrudnione. To rozszerzenie przywraca ocenę poszczególnych filmów i seriali na strony Netfliksa. Prezentowany ranking pochodzi z największego polskiego serwisu poświeconego filmom - FilmWeb.pl, oraz z serwisu Nflix.pl.</p>
-            <p><div class='nfw_score'>8,8</div><div class='nfw_score_bob'>Filmweb 8,8</div><div class='nfw_score_bob'>Nflix.pl 8,21</div><div class='nfw_score_jaw'><img src='star.png'> Filmweb 8,8 <img src='star.png'> Nflix.pl 8,21 <img src='star.png'> </div></p>
-        </div>
         <div style='clear:both'></div>
         <div class='desc'>
             <h3>problemy</h3><a name='troubleshooting_pl'></a>
