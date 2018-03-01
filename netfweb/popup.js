@@ -34,7 +34,6 @@ chrome.storage.local.get(readStore, function(data) {
         $('#filmweb').css('font-weight', 'bold');
     } else{
         $('#filmweb').css('font-weight', 'none');
-        $('#nflix').css('font-weight', 'none');
         $('#'+data[readStore]).css('font-weight', 'bold');
     }
 
@@ -42,7 +41,7 @@ chrome.storage.local.get(readStore, function(data) {
 
 /* Handles user mapping on filmweb, metacritic and imdb websites */
 chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-    if(tabs[0].url.match('filmweb.pl|metacritic.com|imdb.com')){
+    if(tabs[0].url.match('filmweb.pl|metacritic.com|imdb.com|themoviedb.org')){
         var readStore = "clipboard";
         chrome.storage.local.get(readStore, function(data) {
             if(data && data['clipboard']){

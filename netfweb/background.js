@@ -8,9 +8,9 @@ $('body').append("<div id='hidden'></div>");
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
 function saveScore(storageID, score, targetURL, v){
-    var filmwebJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v });
+    var infoJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v });
     var save = {};
-    save[storageID] = filmwebJSON;
+    save[storageID] = infoJSON;
     chrome.storage.local.set(save);
 }
 
@@ -236,6 +236,59 @@ function getNflix(request,data, delay){
 }
 
 /**
+ * Parse the TheMovieDB.org website to get the title's rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} delay - number of delay before fetching website
+ * @param {integer} v - verification status (1 - verified, 0 - unverified)
+ */
+function parseTMDB(idNetflix,targetURL, delay, v=0){
+    if(targetURL.match(/themoviedb/)){
+        window.setTimeout(function(){
+          apiURL=targetURL.replace(/www\.themoviedb\.org/, "api.themoviedb.org/3")+"?api_key=863a68f7de47c832b98df21711a2ec1a";
+            $.ajax({
+                url: apiURL,
+                success: function(data) {
+                  if(data !== null){
+                    var score = "?";
+                    var score = Math.round(data.vote_average*10)/10;
+                    var titleName="tmdb_"+idNetflix;
+                    saveScore(titleName, score, targetURL, v);
+                  }
+                }
+            });
+
+        }, Math.random()*delay/3);
+    }
+}
+
+/**
+ * Get TheMovieDB.org rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} delay - number of delay before fetching website
+ */
+function getTMDb(request,data, delay){
+    if(!data["tmdb_"+request.idNetflix]){
+      window.setTimeout(function(){
+        $.getJSON('https://api.themoviedb.org/3/search/multi?api_key=863a68f7de47c832b98df21711a2ec1a&query='+encodeURIComponent(request.titleName).replace("'","%27"), function(data) {
+                if(data !== null){
+                  var score = Math.round(data.results[0].vote_average*10)/10;
+                  var titleName="tmdb_"+request.idNetflix;
+                  var targetURL = 'https://www.themoviedb.org/'+data.results[0].media_type+'/'+data.results[0].id;
+                  saveScore(titleName, score, targetURL, 0);
+                }
+         });
+       }, Math.random()*delay);
+    }else { // data about title already in storage
+        item = JSON.parse(data["tmdb_"+request.idNetflix]);
+        if(item.URL && (!item.score || request.all == 0) ) {
+            parseTMDB(request.idNetflix,item.URL, delay, item.v);
+        }
+    }
+}
+
+/**
  * Update storege with new mapping between source service URL and title
  * @param {string} idNetflix - title's netflix ID
  * @param {string} source - rating website name (filmweb, metacritic, imdb)
@@ -265,11 +318,13 @@ function import_maps(){
     readStore["control"] = '';
     chrome.storage.local.get(readStore, function(data){
       for (var idNetflix in  map_filmweb) update_map(idNetflix, 'filmweb', 'http://www.filmweb.pl/'+map_filmweb[idNetflix]);
-      for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'http://www.metacritic.com/'+map_metacritic[idNetflix]);
       for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'http://www.imdb.com/'+map_imdb[idNetflix]);
+      for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'http://www.metacritic.com/'+map_metacritic[idNetflix]);
+      for (var idNetflix in  map_tmdb) update_map(idNetflix, 'tmdb', 'https://www.themoviedb.org/'+map_tmdb[idNetflix]);
       map_filmweb="";
       map_metacritic="";
       map_imdb="";
+      map_tmdb="";
     });
 }
 
@@ -304,11 +359,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                     getFilmWeb(request, data, delay);
                 });
             }
-            if((request.all=="0") || (scoreSource=='nflix')){
+            if((request.all=="0") || (scoreSource=='tmdb')){
                 readStore = {};
-                readStore["nflix_"+request.idNetflix] = '';
+                readStore["tmdb_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
-                    getNflix(request, data, delay) ;
+                    getTMDb(request, data, delay) ;
                 });
             }
             if((request.all=="0") || (scoreSource=='metacritic')){
@@ -334,6 +389,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             if(request.source=='fw') readStore1 = "filmweb_"+request.idNetflix;
             else if (request.source=='me') readStore1 = "metacritic_"+request.idNetflix;
             else if (request.source=='im') readStore1 = "imdb_"+request.idNetflix;
+            else if (request.source=='tm') readStore1 = "tmdb_"+request.idNetflix;
+
             chrome.storage.local.get(readStore1, function(data) {
                 var infoJSON = JSON.parse(data[readStore1]);
                 // json_data = '"'+request.idNetflix+'": { "URL": "'+infoJSON.URL+'", "score": "'+infoJSON.score+'" },';
@@ -360,6 +417,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         } else if(newData[1].match(/imdb/)) {
             parseIMDB(newData[0], newData[1], 1);
             saveScore("imdb_"+newData[0], '?', newData[1], '0');
+        } else if(newData[1].match(/themoviedb/)) {
+            parseTMDB(newData[0], newData[1], 1);
+            saveScore("tmdb_"+newData[0], '?', newData[1], '0');
         }
 
     }else if(request.type=="getTitle"){
@@ -399,7 +459,7 @@ chrome.runtime.onInstalled.addListener(function(details){
         currVersion = chrome.runtime.getManifest().version.split('.');
         prevVersion = details.previousVersion.split('.');
         if((currVersion[0]>prevVersion[0]) || (currVersion[1]>prevVersion[1]))
-            window.open(chrome.extension.getURL("/info.html"));
+          chrome.tabs.create({url: "info.html"});
     }
     import_maps();
 });

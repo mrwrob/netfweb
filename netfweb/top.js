@@ -61,8 +61,8 @@ $('#prev').click(function(){
     generateList(from, count, sortArray);
 });
 
-$('#nflix').click(function(){
-    readDB("nflix");
+$('#tmdb').click(function(){
+    readDB("tmdb");
 });
 
 $('#metacritic').click(function(){

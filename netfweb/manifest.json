@@ -3,11 +3,12 @@
 
   "name": "Film scores for Netflix",
   "short_name": "netfweb",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Extension enriches netflix browser with a rating based on the scores from IMDb.com, FilmWeb.pl, Netflix.pl and Metacritic.com sites.",
   "permissions": [
     "https://www.netflix.com/",
-    "http://api.nflix.pl/",
+    "http://api.themoviedb.org/",
+    "https://www.themoviedb.org/",
     "http://www.filmweb.pl/",
     "http://www.metacritic.com/",
     "http://www.imdb.com/",
@@ -35,7 +36,7 @@
   }],
 
   "background": {
-    "scripts": ["jquery.js", "map_imdb.js", "map_filmweb.js", "map_metacritic.js", "background.js"],
+    "scripts": ["jquery.js", "map_tmdb.js", "map_imdb.js", "map_metacritic.js", "map_filmweb.js", "background.js"],
     "persistent": true
   }
 
