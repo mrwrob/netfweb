@@ -170,7 +170,7 @@ chrome.storage.local.get(readStore, function(data) {
             titleName=$(this).find('img.logo').attr('alt');
         }
         idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
-        if(titleName) placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+        if(titleName) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
     });
 });
 
@@ -201,7 +201,7 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
                         titleName=$(this).find('img.logo').attr('alt');
                     }
                     idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
-                    if(idNetflix) placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+                    if(idNetflix) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
                 }
             }
     	});

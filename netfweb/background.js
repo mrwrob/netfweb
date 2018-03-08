@@ -186,31 +186,7 @@ function parseIMDB(idNetflix,targetURL, delay, v=0){
 function getIMDB(request, data, delay){
     if(!data["imdb_"+request.idNetflix]){ // data about title not available in storage
         window.setTimeout(function(){
-            $.ajax({ // Try UNOGS website
-                url:'https://unogs.com/nf.cgi?t=loadvideo&q='+request.idNetflix,
-                // beforeSend: function(request) {
-                //     request.setRequestHeader("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-                //     request.setRequestHeader("Cache-Control","max-age=0");
-                //     request.setRequestHeader("Upgrade-Insecure-Requests","1");
-                // },
-                success: function(data) {
-                //   console.log(data);
-                //     imdb=data.RESULT.imdbinfo;
-                //     if(imdb) {
-                //         var score='';
-                //         if(imdb[0]) score = imdb[0];
-                //         if(imdb[9]) {
-                //             var targetURL = 'http://www.imdb.com/title/'+imdb[9];
-                //             var imdbJSON = JSON.stringify({ 'score': score, 'URL' : targetURL });
-                //             var save = {};
-                //             var titleName="imdb_"+request.idNetflix;
-                //             save[titleName] = imdbJSON;
-                //             chrome.storage.local.set(save);
-                //         }
-                //     }
-                // },
-                // error: function (r, status, error) {
-                    $.ajax({ // Search directly on the IMDb website
+                   $.ajax({ // Search directly on the IMDb website
                         url:'http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q='+encodeURIComponent(request.titleName.replace("'"," ")),
                         success: function(data) {
                             var re = new RegExp('primary_photo"> <a href="/title/[^>]*>', 'i');
@@ -220,8 +196,6 @@ function getIMDB(request, data, delay){
                                 parseIMDB(request.idNetflix,targetURL, 1000);
                             }
                         }
-                    })
-                }
             })}, Math.random()*delay);
     }else { // data about title already in storage
         item = JSON.parse(data["imdb_"+request.idNetflix]);
@@ -485,25 +459,3 @@ chrome.runtime.onInstalled.addListener(function(details){
     import_maps();
 });
 
-/* Changes headers before fetching ungos website */
-// chrome.webRequest.onBeforeSendHeaders.addListener(function(details){
-//     var newRef = "http://unogs.com";
-//     var gotRef = false;
-//     for(var n in details.requestHeaders){
-//         gotRef = details.requestHeaders[n].name.toLowerCase()=="referer";
-//         if(gotRef){
-//             details.requestHeaders[n].value = newRef;
-//             break;
-//         }
-//     }
-//     if(!gotRef){
-//         details.requestHeaders.push({name:"Referer",value:newRef});
-//     }
-//         return {requestHeaders:details.requestHeaders};
-//     },{
-//         urls:["https://unogs.com/*"]
-//     },[
-//         "requestHeaders",
-//         "blocking"
-//     ]
-// );
