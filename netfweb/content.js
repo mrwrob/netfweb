@@ -56,7 +56,7 @@ function placeScore(titleName, idNetflix, filmBox){
 
         /* Read and place score from storage */
         chrome.storage.local.get(readStore, function(data) {
-            filmBox.find(".nfw_score").html(getInfo(data[readStore]).score);
+            filmBox.find(".nfw_score").html(getInfo(data[readStore]).score.toLocaleString());
         });
     }
 }
@@ -133,12 +133,12 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 
             if(key.match(scoreSource)){
                 $(".title_"+idNetflix).each(function(){
-                    $(this).html(getInfo(data).score);
+                    $(this).html(getInfo(data).score.toLocaleString());
                 });
             }
 
             $(".title_"+key).each(function(){
-                $(this).html(getInfo(data).score);
+                $(this).html(getInfo(data).score.toLocaleString());
             });
 
             $(".link_"+key).each(function(){
@@ -170,7 +170,10 @@ chrome.storage.local.get(readStore, function(data) {
             titleName=$(this).find('img.logo').attr('alt');
         }
         idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
-        if(titleName) placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+        if(titleName) {
+            if($(this).find('div.jawbone-actions')) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
+            else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+        }
     });
 });
 
@@ -201,7 +204,10 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
                         titleName=$(this).find('img.logo').attr('alt');
                     }
                     idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
-                    if(idNetflix) placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+                    if(idNetflix) {
+                        if($(this).find('div.jawbone-actions').length > 0) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
+                        else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+                    }
                 }
             }
     	});
