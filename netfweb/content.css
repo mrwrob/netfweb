@@ -20,6 +20,7 @@ div.nfw_score{
     font-weight: bold;
     text-align: center;
     z-index:1;
+    pointer-events: none;
 }
 
 span.nfw_score_bob {
