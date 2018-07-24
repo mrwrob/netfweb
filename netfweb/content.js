@@ -87,10 +87,11 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     });
 
     var params = {};
-    params["filmweb"] = { "URL": "http://www.filmweb.pl/search?q=", "shortcut": "fw", "name": "Filmweb"};
+    params["filmweb"] = { "URL": "https://www.filmweb.pl/search?q=", "shortcut": "fw", "name": "Filmweb"};
     params["metacritic"] = { "URL": "http://www.metacritic.com/search/all/", "URL2": "/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced", "shortcut": "me", "name": "Metacritic"};
     params["imdb"] ={ "URL": "http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q=", "shortcut": "im", "name": "IMDb"};
     params["tmdb"] = { "URL": "https://www.themoviedb.org/search?query=", "shortcut": "tm", "name": "TheMovieDB"};
+    params["nflix"] = { "shortcut": "nf", "name": "nflix.pl"};
     Object.keys(params).forEach(function(source){
       var readStore = source+"_"+idNetflix;
       chrome.storage.local.get(readStore, function(data) {
@@ -156,9 +157,10 @@ chrome.storage.local.get(readStore, function(data) {
 
     // For all displayed titles
     $('.title-card').each(function(){
-        titleName = $(this).find('.video-preload-title-label:first').text();  // Gets the title's name
-        if(titleName){
-            idNetflix = $(this).find('a').attr('href').replace(/\/watch\/([0-9]*).*/,"$1"); // Gets the title's netflix ID
+        titleName = $(this).find('.fallback-text:first').text();  // Gets the title's name
+        idNetflix = $(this).find('a').attr('href').replace(/\/watch\/([0-9]*).*/,"$1"); // Gets the title's netflix ID
+        console.log(idNetflix+": "+titleName);
+        if(idNetflix){
             placeScore(titleName,idNetflix, $(this));
         }
     });
@@ -190,8 +192,10 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
 
                 // For all displayed titles
                 $(this).find('.title-card-container').each(function(){
-                    titleName = $(this).find('.video-preload-title-label:first').text();
+                    titleName = $(this).find('.fallback-text:first').text();
                     idNetflix = $(this).find('a').attr('href').replace(/\/watch\/([0-9]*).*/,"$1");
+                    console.log(idNetflix+": "+titleName);
+
                     if(idNetflix) {
                         placeScore(titleName,idNetflix, $(this));
                     }

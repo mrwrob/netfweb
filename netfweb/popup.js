@@ -10,12 +10,14 @@ function click(e) {
     else if((e.target.id == "report") || (e.target.id == "report_strong")){
         chrome.runtime.sendMessage({type: "report_f", data: $('#data').html()});
     } else {
-        var save = {};
-        save['scoreSource'] = e.target.id;
-        chrome.storage.local.set(save);
-        chrome.tabs.reload();
+        if(!e.target.id.match(/.*check$/)) {
+          var save = {};
+          save['scoreSource'] = e.target.id;
+          chrome.storage.local.set(save);
+          chrome.tabs.reload();
+        }
     }
-    window.close();
+    // window.close();
 }
 
 /* Listens to popup menu */
@@ -27,6 +29,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 var readStore = "scoreSource";
 $('#filmweb').css('font-weight', 'bold');
+
+/* Gets selected source website from storage */
+chrome.storage.local.get(readStore, function(data) {
+    if(data === undefined || data[readStore] === undefined){
+        $('#filmweb').css('font-weight', 'bold');
+    } else{
+        $('#filmweb').css('font-weight', 'none');
+        $('#'+data[readStore]).css('font-weight', 'bold');
+    }
+
+});
 
 /* Gets selected source website from storage */
 chrome.storage.local.get(readStore, function(data) {

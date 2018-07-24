@@ -20,20 +20,22 @@ function saveScore(storageID, score, targetURL, v){
  * @param {string} targetURL - URL of title's website on the source website
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
-function parseFilmWeb(idNetflix,targetURL, v=0){
+function parseFilmWeb(idNetflix,targetURL, delay, v=0){
     if((targetURL.match(/filmweb/)) && (! targetURL.match(/(undefined|news|person|user|videogame)/))){
-        $.ajax({
-            url: targetURL,
-            success: function(data) {
-                var parseURL=/communityRateInfo:"[^"]*"/.exec(data);
-                var score = "?";
-                if(parseURL !== null){
-                    score = parseURL[0].replace(/.*"([^"]*)"/,'$1');
-                    var storageID="filmweb_"+idNetflix;
-                    saveScore(storageID, score, targetURL, v);
-                }
-            }
-        });
+        window.setTimeout(function(){
+		$.ajax({
+		    url: targetURL,
+		    success: function(data) {
+			var parseURL=/communityRateInfo:"[^"]*"/.exec(data);
+			var score = "?";
+			if(parseURL !== null){
+			    score = parseURL[0].replace(/.*"([^"]*)"/,'$1');
+			    var storageID="filmweb_"+idNetflix;
+			    saveScore(storageID, score, targetURL, v);
+			}
+		    }
+		});
+        }, Math.random()*delay/3);
     }
 }
 
@@ -47,8 +49,8 @@ function getFilmwebURL(request, data, delay){
       parseURL=re.exec(data);
   }
 
-  if(parseURL !== null){
-      var targetURL = "http://www.filmweb.pl"+parseURL[0].replace(/.*?class="filmPreview__link" href="([^"]*)".*/,'$1');
+  if((parseURL !== null)&&(!parseURL[0].match("Zielona.mila"))){
+      var targetURL = "https://www.filmweb.pl"+parseURL[0].replace(/.*?class="filmPreview__link" href="([^"]*)".*/,'$1');
       parseFilmWeb(request.idNetflix,targetURL, delay);
   }
 
@@ -62,26 +64,29 @@ function getFilmwebURL(request, data, delay){
  */
 function getFilmWeb(request, data, delay){
     if(!data["filmweb_"+request.idNetflix]){  // data about title not available in storage
-        $.ajax({
-            url:'http://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName).replace("'","%27"),
-            success: function(data) {
-                if(data.match(/top.location.href/)){
-                  var re = new RegExp("top.location.href='([^']*)", 'm');
-                  var parseURL=re.exec(data);
-                  if(parseURL != null){
-                    newURL = parseURL[0].replace(/top.location.href='([^']*).*/,"$1", "m");
-                    $.ajax({
-                        url:newURL,
-                        success: function(data) {
-                          getFilmwebURL(request, data, delay);
-                        }
-                      });
-                  }
-                } else {
-                  getFilmwebURL(request, data, delay);
-                }
-            }
-        });
+        window.setTimeout(function(){
+		$.ajax({
+		    url:'https://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName).replace("'","%27"),
+		    success: function(data) {
+
+			if(data.match(/top.location.href/)){
+			  var re = new RegExp("top.location.href='([^']*)", 'm');
+			  var parseURL=re.exec(data);
+			  if(parseURL != null){
+			    newURL = parseURL[0].replace(/top.location.href='([^']*).*/,"$1", "m");
+			    $.ajax({
+				url:newURL,
+				success: function(data) {
+				  getFilmwebURL(request, data, delay);
+				}
+			      });
+			  }
+			} else {
+			  getFilmwebURL(request, data, delay);
+			}
+		    }
+		});
+        }, Math.random()*delay);
     } else { // data about title already in storage
         item = JSON.parse(data["filmweb_"+request.idNetflix]);
         if(item.URL && (!item.score || request.all==0)) {
@@ -136,8 +141,8 @@ function getMetacritic(request, data, delay){
                         parseURL=re.exec(data);
                     }
                     if(parseURL !== null){
-                        var targetURL = "http://www.metacritic.com"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
-                        parseMetacritic(request.idNetflix,targetURL, delay);
+                        var targetURL = "http://www.metacritic.com"+parseURL[0].split('\n', 1)[0].replace(/.*href="([^"]*).*/,'$1');
+                        parseMetacritic(request.idNetflix,targetURL.replace(/(%20)+$/,''), delay);
                     }
                 }
             })}, Math.random()*delay);
@@ -187,12 +192,13 @@ function getIMDB(request, data, delay){
     if(!data["imdb_"+request.idNetflix]){ // data about title not available in storage
         window.setTimeout(function(){
                    $.ajax({ // Search directly on the IMDb website
-                        url:'http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q='+encodeURIComponent(request.titleName.replace("'"," ")),
+                        url:'https://www.imdb.com/find?ref_=nv_sr_fn&s=all&q='+encodeURIComponent(request.titleName.replace("'"," ")),
                         success: function(data) {
                             var re = new RegExp('primary_photo"> <a href="/title/[^>]*>', 'i');
                             var parseURL=re.exec(data);
+
                             if(parseURL !== null){
-                                var targetURL = "http://www.imdb.com"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
+                                var targetURL = "https://www.imdb.com"+parseURL[0].replace(/.*href="([^"]*).*/,'$1');
                                 parseIMDB(request.idNetflix,targetURL, 1000);
                             }
                         }
@@ -222,8 +228,10 @@ function getNflix(request,data, delay){
                         var targetURL = 'https://www.nflix.pl/netflix-polska/opis/?i='+request.idNetflix;
                         var nflixJSON = JSON.stringify({ 'score': score, 'URL' : targetURL });
                         var save = {};
-                        save[titleName] = nflixJSON;
-                        chrome.storage.local.set(save);
+                        if(score != ("5,02")){
+                          save[titleName] = nflixJSON;
+                          chrome.storage.local.set(save);
+                        }
                 }
              }
          });
@@ -312,8 +320,8 @@ function import_maps(){
     var readStore = {};
     readStore["control"] = '';
     chrome.storage.local.get(readStore, function(data){
-      for (var idNetflix in  map_filmweb) update_map(idNetflix, 'filmweb', 'http://www.filmweb.pl/'+map_filmweb[idNetflix]);
-      for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'http://www.imdb.com/'+map_imdb[idNetflix]);
+      for (var idNetflix in  map_filmweb) update_map(idNetflix, 'filmweb', 'https://www.filmweb.pl/'+map_filmweb[idNetflix]);
+      for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'https://www.imdb.com/'+map_imdb[idNetflix]);
       for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'http://www.metacritic.com/'+map_metacritic[idNetflix]);
       for (var idNetflix in  map_tmdb) update_map(idNetflix, 'tmdb', 'https://www.themoviedb.org/'+map_tmdb[idNetflix]);
       map_filmweb="";
@@ -373,6 +381,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                 readStore["imdb_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
                      getIMDB(request, data, delay) ;
+                });
+            }
+            if((request.all=="0") || (scoreSource=='nflix')){
+                readStore = {};
+                readStore["nflix"+request.idNetflix] = '';
+                chrome.storage.local.get(readStore, function(data){
+                     getNflix(request, data, delay) ;
                 });
             }
         });
@@ -458,4 +473,3 @@ chrome.runtime.onInstalled.addListener(function(details){
     }
     import_maps();
 });
-

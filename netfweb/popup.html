@@ -14,11 +14,11 @@
             }
             div {
                 cursor: pointer;
-                text-align: center;
+                text-align: left;
                 padding: 5px 10px;
                 font-family: sans-serif;
                 font-size: 12pt;
-                width: 100px;
+                width: 150px;
                 margin-top: 1px;
                 background: #cccccc;
             }
@@ -32,18 +32,30 @@
            #data{
                display: none;
            }
+
+           input.nfw_checkbox{
+             width: 17px;
+             height: 17px;
+           }
+
+           div.nfw_btns{
+             text-align: center;
+           }
+
         </style>
         <script src="jquery.js"></script>
         <script src="popup.js"></script>
     </head>
     <body>
-        <div id="logo"><img id="logo" src='icon48.png'></div>
-        <div id="filmweb">Filmweb.pl</div>
-        <div id="metacritic">Metacritic</div>
-        <div id="imdb">IMDb</div>
-        <div id="reload"><img id="reload" title='Reload scores' src='reload.png'></div>
-        <div id="top">top</div>
-        <div id="help">help</div>
-        <div id="data"><div>
+        <div id="logo" class='nfw_btns'><img id="logo" src='icon48.png'></div>
+        <div id="filmweb"><input id="filmweb_check" class="nfw_checkbox" type="checkbox" checked="checked"> Filmweb.pl </div>
+        <div id="metacritic"><input id="metacritic_check" class="nfw_checkbox" type="checkbox" checked="checked"> Metacritic </div>
+        <div id="imdb"><input id="metacritic_check" class="nfw_checkbox" type="checkbox" checked="checked"> IMDb</div>
+        <div id="tmdb"><input id="metacritic_check" class="nfw_checkbox" type="checkbox" checked="checked"> TheMovieDB</div>
+        <div id="nflix"><input id="metacritic_check" class="nfw_checkbox" type="checkbox" checked="checked"> nflix.pl</div>
+        <div id="reload" class='nfw_btns'><img id="reload" title='Reload scores' src='reload.png'></div>
+        <div id="top" class='nfw_btns'>top</div>
+        <div id="help" class='nfw_btns'>help</div>
+        <div id="data" class='nfw_btns'><div>
     </body>
 </html>
