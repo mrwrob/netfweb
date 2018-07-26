@@ -15,9 +15,16 @@ function click(e) {
           save['scoreSource'] = e.target.id;
           chrome.storage.local.set(save);
           chrome.tabs.reload();
+        } else {
+          var checked=0;
+          if($('#'+e.target.id).prop('checked')) checked=1;
+          var save = {};
+          save['scoreChecked_'+e.target.id.replace(/_check/,"")] = {checked};
+          chrome.storage.local.set(save);
+          console.log(save);
         }
     }
-    window.close();
+    // window.close();
 }
 
 /* Listens to popup menu */
@@ -38,8 +45,23 @@ chrome.storage.local.get(readStore, function(data) {
         $('#filmweb').css('font-weight', 'none');
         $('#'+data[readStore]).css('font-weight', 'bold');
     }
-
 });
+
+var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix"];
+
+for(var service of servicesArray){
+  chrome.storage.local.get("scoreChecked_"+service, function(data) {
+      if(data !== undefined || data[readStore] !== undefined){
+        var keyValue = Object.keys(data)[0];
+        if(keyValue !== undefined){
+          console.log(data[keyValue].checked);
+          if(data[keyValue].checked == 0){
+            $("#"+keyValue.replace(/scoreChecked_/,"")+"_check").prop('checked', false);
+          }
+        }
+      }
+  });
+}
 
 /* Gets selected source website from storage */
 chrome.storage.local.get(readStore, function(data) {
