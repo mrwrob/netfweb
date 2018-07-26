@@ -17,7 +17,7 @@ function click(e) {
           chrome.tabs.reload();
         }
     }
-    // window.close();
+    window.close();
 }
 
 /* Listens to popup menu */
