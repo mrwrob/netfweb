@@ -170,9 +170,9 @@ function parseIMDB(idNetflix,targetURL, delay, v=0){
                     var parseURL=/<div class="ratingValue">[^<]*<strong[^<]*<span[^<]*<\/span/.exec(data);
                     var score = "?";
                     if(parseURL !== null){
-                        score = parseURL[0].replace(/.*<span>([^<]*)<\/span/s,'$1');
+			score = parseURL[0].replace(/.*<span>([^<]*)<\/span/,'$1');
                         var titleName="imdb_"+idNetflix;
-                        saveScore(titleName, score, targetURL, v);
+                        saveScore(titleName, score.split("\n")[1], targetURL, v);
                     }
                 }
 
