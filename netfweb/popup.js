@@ -21,10 +21,9 @@ function click(e) {
           var save = {};
           save['scoreChecked_'+e.target.id.replace(/_check/,"")] = {checked};
           chrome.storage.local.set(save);
-          console.log(save);
         }
     }
-    // window.close();
+    window.close();
 }
 
 /* Listens to popup menu */
@@ -54,7 +53,6 @@ for(var service of servicesArray){
       if(data !== undefined || data[readStore] !== undefined){
         var keyValue = Object.keys(data)[0];
         if(keyValue !== undefined){
-          console.log(data[keyValue].checked);
           if(data[keyValue].checked == 0){
             $("#"+keyValue.replace(/scoreChecked_/,"")+"_check").prop('checked', false);
           }

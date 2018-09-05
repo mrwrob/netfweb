@@ -33,7 +33,6 @@ function readDB(source){
                 try {
                     var infoJSON = JSON.parse(items[key]);
                 } catch (e) {
-                    console.log(e);
                 }
                 if(infoJSON && infoJSON.score && infoJSON.score != 0){
                     scoreArray.push(infoJSON.score+";"+idNetflix);

@@ -68,8 +68,7 @@ function placeScore(titleName, idNetflix, filmBox){
  * @param {string} filmBox - jquery object where information will be placed
  */
 function placeScoreJaw(titleName, idNetflix, filmBox){
-    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "0"});
-console.log(filmBox);
+    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "0", serviceDisplay: serviceDisplay});
     filmBox.before("<div class='nfw_score_jaw'><img class='nfw_wrong' src='"+chrome.extension.getURL("/wrong.png")+"'> <img src='"+chrome.extension.getURL("/star.png")+"'><div id='nfw_report_a'><div id='nfw_report'></div></div> </div>");
     filmBox.before("<div class='nfw_related'><a href='https://www.netflix.com/search?q=%20&suggestionId="+idNetflix+"_video'>related titles...</a></div>");
     destBox = filmBox.parent().find('.nfw_score_jaw');
@@ -87,13 +86,11 @@ console.log(filmBox);
     });
 
     var params = {};
-    console.log(serviceDisplay);
     if(serviceDisplay["filmweb"] != 0) params["filmweb"] = { "URL": "https://www.filmweb.pl/search?q=", "shortcut": "fw", "name": "Filmweb"};
     if(serviceDisplay["metacritic"] != 0) params["metacritic"] = { "URL": "http://www.metacritic.com/search/all/", "URL2": "/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced", "shortcut": "me", "name": "Metacritic"};
     if(serviceDisplay["imdb"] != 0) params["imdb"] ={ "URL": "http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q=", "shortcut": "im", "name": "IMDb"};
     if(serviceDisplay["tmdb"] != 0) params["tmdb"] = { "URL": "https://www.themoviedb.org/search?query=", "shortcut": "tm", "name": "TheMovieDB"};
-    if(serviceDisplay["nflix"] != 0) params["nflix"] = { "shortcut": "nf", "name": "nflix.pl"};
-    console.log(params);
+    if(serviceDisplay["nflix"] != 0) params["nflix"] = { "shortcut": "nf", "name": "Nflix.pl"};
 
     Object.keys(params).forEach(function(source){
       var readStore = source+"_"+idNetflix;
@@ -178,13 +175,11 @@ chrome.storage.local.get(readStore, function(data) {
         idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
         if(titleName) {
             if($(this).find('div.jawbone-actions')) {
-              // placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
               var filmBox = $(this).find('div.jawbone-actions');
-              console.log('JAW');
+              titleName2=titleName;
+              idNetflix2=idNetflix
               setTimeout(function(){
-                placeScoreJaw(titleName, idNetflix, filmBox);
-                console.log('JAW2');
-
+                placeScoreJaw(titleName2, idNetflix2, filmBox);
               }, 1000);
             } else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
         }

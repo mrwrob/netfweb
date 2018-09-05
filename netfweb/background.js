@@ -167,10 +167,10 @@ function parseIMDB(idNetflix,targetURL, delay, v=0){
             $.ajax({
                 url: targetURL,
                 success: function(data) {
-                    var parseURL=/<span itemprop="ratingValue">[^<]*<\/span>/.exec(data);
+                    var parseURL=/<div class="ratingValue">[^<]*<strong[^<]*<span[^<]*<\/span/.exec(data);
                     var score = "?";
                     if(parseURL !== null){
-                        score = parseURL[0].replace(/.*"ratingValue">([^<]*)<\/span>/,'$1');
+                        score = parseURL[0].replace(/.*<span>([^<]*)<\/span/s,'$1');
                         var titleName="imdb_"+idNetflix;
                         saveScore(titleName, score, targetURL, v);
                     }
@@ -356,34 +356,34 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             if(data && data.scoreSource) scoreSource = data.scoreSource;
 
             var readStore = {};
-            if((request.all=="0") || (scoreSource=='filmweb')){
+            if(((request.all=="0")&&(request.serviceDisplay.filmweb == 1)) || (scoreSource=='filmweb')){
                 readStore["filmweb_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
                     getFilmWeb(request, data, delay);
                 });
             }
-            if((request.all=="0") || (scoreSource=='tmdb')){
+            if(((request.all=="0")&&(request.serviceDisplay.tmdb == 1)) || (scoreSource=='tmdb')){
                 readStore = {};
                 readStore["tmdb_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
                     getTMDb(request, data, delay) ;
                 });
             }
-            if((request.all=="0") || (scoreSource=='metacritic')){
+            if(((request.all=="0")&&(request.serviceDisplay.metacritic == 1)) || (scoreSource=='metacritic')){
                 readStore = {};
                 readStore["metacritic_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
                      getMetacritic(request, data, delay) ;
                 });
             }
-            if((request.all=="0") || (scoreSource=='imdb')){
+            if(((request.all=="0")&&(request.serviceDisplay.imdb == 1)) || (scoreSource=='imdb')){
                 readStore = {};
                 readStore["imdb_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
                      getIMDB(request, data, delay) ;
                 });
             }
-            if((request.all=="0") || (scoreSource=='nflix')){
+            if(((request.all=="0")&&(request.serviceDisplay.nflix == 1)) || (scoreSource=='nflix')){
                 readStore = {};
                 readStore["nflix"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
