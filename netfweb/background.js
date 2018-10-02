@@ -132,7 +132,7 @@ function getMetacritic(request, data, delay){
     if(!data["metacritic_"+request.idNetflix]){  // data about title not available in storage
         window.setTimeout(function(){
             $.ajax({
-                url:'http://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName.replace("'"," "))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
+                url:'https://www.metacritic.com/search/all/'+encodeURIComponent(request.titleName.replace("'"," "))+'/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced',
                 success: function(data) {
                     var re = new RegExp('<a href[^>]*>'+request.titleName.replace(/[ \'-;,]/g,'.')+' *<', 'i');
                     var parseURL=re.exec(data);
@@ -141,7 +141,7 @@ function getMetacritic(request, data, delay){
                         parseURL=re.exec(data);
                     }
                     if(parseURL !== null){
-                        var targetURL = "http://www.metacritic.com"+parseURL[0].split('\n', 1)[0].replace(/.*href="([^"]*).*/,'$1');
+                        var targetURL = "https://www.metacritic.com"+parseURL[0].split('\n', 1)[0].replace(/.*href="([^"]*).*/,'$1');
                         parseMetacritic(request.idNetflix,targetURL.replace(/(%20)+$/,''), delay);
                     }
                 }
@@ -322,7 +322,7 @@ function import_maps(){
     chrome.storage.local.get(readStore, function(data){
       for (var idNetflix in  map_filmweb) update_map(idNetflix, 'filmweb', 'https://www.filmweb.pl/'+map_filmweb[idNetflix]);
       for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'https://www.imdb.com/'+map_imdb[idNetflix]);
-      for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'http://www.metacritic.com/'+map_metacritic[idNetflix]);
+      for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'https://www.metacritic.com/'+map_metacritic[idNetflix]);
       for (var idNetflix in  map_tmdb) update_map(idNetflix, 'tmdb', 'https://www.themoviedb.org/'+map_tmdb[idNetflix]);
       map_filmweb="";
       map_metacritic="";
