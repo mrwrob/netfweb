@@ -51,6 +51,25 @@ div.nfw_score_jaw {
     border-radius: 5px;
 }
 
+div.nfw_score_bob {
+    pointer-events: none;
+    position: absolute;
+    left: 5px;
+    top: 0;
+    z-index: 990;
+    font-size: 14px;
+    padding: 2px 5px;
+    clear: both;
+    margin: 5px 0;
+    background: rgba(100,100,100,0.4);
+    border: 2px solid #666;
+    color: #FF9;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 5px;
+
+}
+
 div.nfw_related {
     font-size: 14px;
     float: right;
@@ -60,7 +79,10 @@ div.nfw_related {
 
 a.nfw_jaw_link {
     color: #FF9;
-
+    display: inline-block;
+    pointer-events: auto;
+    z-index: 999;
+    cursor: context-menu;
 }
 
 img.nfw_wrong{
@@ -76,19 +98,19 @@ img.nfw_button{
 
 #nfw_report_a {
     position:absolute;
-    width: 0px; 
-    height: 0px; 
+    width: 0px;
+    height: 0px;
 }
 
 #nfw_report {
     position:relative;
     overflow: visible;
     float:right;
-    z-index:9000; 
-    bottom: 0px; 
+    z-index:9000;
+    bottom: 0px;
     width: 150px;
     left: 400px;
-    border: 2px solid grey; 
+    border: 2px solid grey;
     padding: 10px;
     background: rgba(200,200,200,0.9);
     display: none;

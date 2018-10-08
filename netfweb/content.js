@@ -121,6 +121,40 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     })
 }
 
+/**
+ * Place title's ratings from all sources on title's popup page
+ * @param {string} titleName - title's name
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} filmBox - jquery object where information will be placed
+ */
+function placeScoreBob(titleName, idNetflix, filmBox){
+    chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "0", serviceDisplay: serviceDisplay});
+    filmBox.after("<div class='nfw_score_bob'> <img src='"+chrome.extension.getURL("/star.png")+"'></div>");
+    destBox = filmBox.parent().find('.nfw_score_bob');
+    $('body').find('.title_'+idNetflix).hide();
+
+    var params = {};
+    if(serviceDisplay["filmweb"] != 0) params["filmweb"] = { "URL": "https://www.filmweb.pl/search?q=", "shortcut": "fw", "name": "Filmweb"};
+    if(serviceDisplay["metacritic"] != 0) params["metacritic"] = { "URL": "http://www.metacritic.com/search/all/", "URL2": "/results?cats%5Bmovie%5D=1&cats%5Btv%5D=1&search_type=advanced", "shortcut": "me", "name": "Metacritic"};
+    if(serviceDisplay["imdb"] != 0) params["imdb"] ={ "URL": "http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q=", "shortcut": "im", "name": "IMDb"};
+    if(serviceDisplay["tmdb"] != 0) params["tmdb"] = { "URL": "https://www.themoviedb.org/search?query=", "shortcut": "tm", "name": "TheMovieDB"};
+    if(serviceDisplay["nflix"] != 0) params["nflix"] = { "shortcut": "nf", "name": "Nflix.pl"};
+
+    Object.keys(params).forEach(function(source){
+      var readStore = source+"_"+idNetflix;
+      chrome.storage.local.get(readStore, function(data) {
+          var infoJSON = getInfo(data[readStore]);
+          var sourceURL = infoJSON.URL;
+          if(!sourceURL && source != 'nflix') {
+            sourceURL=params[source].URL+encodeURIComponent(titleName).replace("'","%27");
+            if(params[source].URL2) sourceURL+=params[source].URL2;
+          }
+
+          destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+      });
+    })
+}
+
 /*
  * Listens to changes in data storege and changes information about ratings
  */
@@ -231,6 +265,16 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
                         if($(this).find('div.jawbone-actions').length > 0) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
                         else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
                     }
+                }
+                if($(this).attr('class').match(/bob-card/)){
+                  titleName=$(this).find('div.bob-title').text();
+                  if(!titleName){
+                      titleName=$(this).find('img.logo').attr('alt');
+                  }
+                  idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
+                  if(idNetflix) {
+                    placeScoreBob(titleName,idNetflix, $(this).find('div.bob-overlay'));
+                  }
                 }
             }
     	});
