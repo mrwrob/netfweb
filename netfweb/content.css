@@ -23,6 +23,24 @@ div.nfw_score{
     pointer-events: none;
 }
 
+div.nfw_circle_red{
+    background: rgba(100,0,0,0.7);
+}
+
+div.nfw_circle_green{
+    background: rgba(0,100,0,0.7);
+}
+
+div.nfw_circle_yellow{
+    background: rgba(100,100,0,0.7);
+}
+
+div.nfw_circle_orange{
+    background: rgba(100,70,0,0.7);
+}
+
+
+
 span.nfw_score_bob {
     font-size: 12px;
     margin-left: 10px;
@@ -53,7 +71,7 @@ div.nfw_score_jaw {
 
 div.nfw_score_bob {
     pointer-events: none;
-    position: absolute;
+    position: relative;
     left: 5px;
     top: 0;
     z-index: 990;

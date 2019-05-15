@@ -90,7 +90,7 @@
             div.links {
                 color: #aaa;
                 border-spacing:15px;
-                width: 400px;
+                width: 600px;
                 margin: 100px auto;
             }
 
@@ -158,7 +158,47 @@
                 margin-top: 100px;
             }
 
+            #new_user{
+              border: 3px solid gray;
+              background: #eee;
+              padding: 20px;
+              padding-top: 0;
+              position: absolute;
+              left: 0;
+              right: 0;
+              margin-left: auto;
+              margin-right: auto;
+              width: 500px;
+              top: 100px;
+              border-radius: 10px;
+              font-size: 12pt;
+              display: none;
+            }
+
+            #new_user ul {
+              list-style-type:none
+            }
+
+            #save_default {
+              background-color: darkred;
+              border: none;
+              color: white;
+              padding: 10px 32px;
+              width: 200px;
+              margin-left: auto;
+              margin-right: auto;
+              text-align: center;
+              text-decoration: none;
+              font-size: 16px;
+            }
+
+            #conf_reload{
+              font-size: 10px;
+
+            }
+
         </style>
+        <script type="text/javascript" src="jquery.js"></script>
     </head>
     <body>
         <div class="logo_back">
@@ -171,10 +211,34 @@
                 <div><a href='#changelog'>changelog</a></div>
                 <div><a href='#about'>about</a></div>
                 <div><a href='#troubleshooting'>troubleshooting</a></div>
+                <div><a id='config' href='#'>configure</a></div>
                 <div><a href='#pl_help'>polski</a></div>
             </div>
          </div>
         <div class="logo_grad"></div>
+
+        <div id='new_user'>
+            <h3>configure</h3><a name='about'></a>
+            <p>Select services from which the ratings will be displayed::</p>
+            <ul>
+              <li><input id="filmweb_check" class="nfw_checkbox" type="checkbox" checked="checked"> Filmweb.pl </li>
+              <li><input id="metacritic_check" class="nfw_checkbox" type="checkbox" checked="checked"> Metacritic </li>
+              <li><input id="imdb_check" class="nfw_checkbox" type="checkbox" checked="checked"> IMDb</li>
+              <li><input id="tmdb_check" class="nfw_checkbox" type="checkbox" checked="checked"> TheMovieDB</li>
+              <li><input id="nflix_check" class="nfw_checkbox" type="checkbox"> Nflix.pl</li>
+            </ul>
+
+            <p>Select the default service from which ratings will be displayed on main page:</p>
+            <ul>
+              <li><input id="filmweb_radio" class="nfw_checkbox" type="radio" name='default'> Filmweb.pl </li>
+              <li><input id="metacritic_radio" class="nfw_checkbox" type="radio" name='default'> Metacritic </li>
+              <li><input id="imdb_radio" class="nfw_checkbox" type="radio"  name='default'> IMDb</li>
+              <li><input id="tmdb_radio" class="nfw_checkbox" type="radio" checked name='default'> TheMovieDB</li>
+              <li><input id="nflix_radio" class="nfw_checkbox" type="radio" name='default'> Nflix.pl</li>
+            </ul>
+	    <p>Color circles with the ratings: <input id="colors_checkbox" class="nfw_checkbox" type="checkbox">
+            <p><button id='save_default'>Save</button> <span id='conf_reload'>Reload Netflix.com after modfifications</span>
+        </div>
         <div class='desc'>
             <h3>about</h3><a name='about'></a>
             <p>Since Netflix replaced stars with a thumbs rating system, it has become <a href='https://www.forbes.com/sites/insertcoin/2017/06/26/netflixs-thumb-based-ratings-system-is-the-epitome-of-uselessness'>very painful</a> to find interesting stuff.
@@ -196,6 +260,12 @@
 
         <div class='desc'>
             <h3>changelog</h3><a name='changelog'></a>
+            <h4> 0.9.0</h4>
+            <p> You can enable coloring of the rating circles on the home main: green for a rating above 7.5, yellow for a rating above 5, red for a rating below 5.</p>
+            <h4> 0.8.1</h4>
+            <p> Changed extension description, due to Web Store policy. Nie links to imdb, themoviedb, metacritic and filmweb. </p>
+            <h4> 0.8.0</h4>
+            <p> Configuration window after first installation. Fixed locale. Fixes for IMDb. </p>
             <h4> 0.7.4</h4>
             <p> Fixed problem with Metacritic ratings.</p>
             <h4> 0.7.3</h4>
@@ -343,6 +413,12 @@
 
         <div class='desc'>
             <h3>zmiany</h3><a name='changelog_pl'></a>
+            <h4> 0.9.0</h4>
+            <p> Można włączyć kolorowanie kółek z ocenami na stronie głównej: zielony - ocena powyżej 7.5, żółty - powyżej 5, czerwony - poniżej 5.</p>
+            <h4> 0.8.1</h4>
+            <p> Zmiana opisu, koniczna aby przywrócić wtyczkę do sklepu. Nowe powiązania z serwisami. </p>
+            <h4> 0.8.0</h4>
+            <p> Okno konfiguracyjne po pierwszej instalacji. Poprawione wyświetlanie liczb. Poprawka dla IMDb. </p>
             <h4> 0.7.4</h4>
             <p> Poprawiony błąd z ocenami Metacritic.</p>
             <h4> 0.7.3</h4>
@@ -459,6 +535,6 @@
             <h4>2. Puste kółka z ocenami</h4>
              Jeśli na stronie pojawiają się puste kółka z ocenami <div class='nfw_score'> </div>, spróbuj przeładować bazę danych. Naciśnij przycisk odświeżenia <img src='reload.png'> z menu na belce przeglądarki <img src='icon19.png'>.
         </div>
-
+        <script type="text/javascript" src="info.js"></script>
     </body>
 </html>

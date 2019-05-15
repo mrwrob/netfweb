@@ -37,6 +37,14 @@ function getInfo(data){
     }
 }
 
+function displayScore(score){
+  if(score && (score == "?")) return score;
+  if(isNaN(score)) newScore = parseFloat(score.replace(",","."));
+  else newScore = score;
+  if(newScore < 10) return Math.round(newScore*10)/10
+  else return Math.round(newScore);
+}
+
 /**
  * Place title's rating from one selected source on browsing page (that with multiply titles)
  * @param {string} titleName - title's name
@@ -56,7 +64,17 @@ function placeScore(titleName, idNetflix, filmBox){
 
         /* Read and place score from storage */
         chrome.storage.local.get(readStore, function(data) {
-            filmBox.find(".nfw_score").html(getInfo(data[readStore]).score.toLocaleString());
+	    colorScore = currScore = displayScore(getInfo(data[readStore]).score);
+	     
+	    if(displayColors && (colorScore != '?')){
+		    if(colorScore>10) colorScore /= 10;
+		    if(colorScore < 5) colorClass = 'red';
+		    else if(colorScore < 6.5) colorClass = 'orange';
+		    else if(colorScore < 8) colorClass = 'yellow';
+		    else colorClass = 'green';
+            	    filmBox.find(".nfw_score").addClass('nfw_circle_'+colorClass);
+	    }
+            filmBox.find(".nfw_score").html(currScore);
         });
     }
 }
@@ -101,8 +119,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
             sourceURL=params[source].URL+encodeURIComponent(titleName).replace("'","%27");
             if(params[source].URL2) sourceURL+=params[source].URL2;
           }
-
-          destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+          destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+displayScore(infoJSON.score)+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
           if(source != 'nflix'){
             if(infoJSON.v!=1) {
                 destBox.find('#nfw_report').append("<div id='ntw_"+params[source].shortcut+"_report'>"+params[source].name+"&nbsp;<img id='ntw_"+params[source].shortcut+"_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_"+params[source].shortcut+"_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
@@ -129,9 +146,9 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
  */
 function placeScoreBob(titleName, idNetflix, filmBox){
     chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "0", serviceDisplay: serviceDisplay});
-    filmBox.after("<div class='nfw_score_bob'> <img src='"+chrome.extension.getURL("/star.png")+"'></div>");
+    filmBox.append("<div class='nfw_score_bob'></div>");
     destBox = filmBox.parent().find('.nfw_score_bob');
-    $('body').find('.title_'+idNetflix).hide();
+    // $('body').find('.title_'+idNetflix).hide();
 
     var params = {};
     if(serviceDisplay["filmweb"] != 0) params["filmweb"] = { "URL": "https://www.filmweb.pl/search?q=", "shortcut": "fw", "name": "Filmweb"};
@@ -150,7 +167,7 @@ function placeScoreBob(titleName, idNetflix, filmBox){
             if(params[source].URL2) sourceURL+=params[source].URL2;
           }
 
-          destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+infoJSON.score+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+          destBox.append(" <img src='"+chrome.extension.getURL("/star.png")+"'>&nbsp;<a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+displayScore(infoJSON.score)+"</span></a>");
       });
     })
 }
@@ -170,12 +187,22 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 
             if(key.match(scoreSource)){
                 $(".title_"+idNetflix).each(function(){
-                    $(this).html(getInfo(data).score.toLocaleString());
+	    	    colorScore = currScore = displayScore(getInfo(data).score);
+                    $(this).html(currScore);
+		    if(displayColors && (colorScore != '?')){
+		        if(colorScore>10) colorScore /= 10;
+		        if(colorScore < 5) colorClass = 'red';
+		        else if(colorScore < 6.5) colorClass = 'orange';
+		        else if(colorScore < 8) colorClass = 'yellow';
+		        else colorClass = 'green';
+            	        $(this).addClass('nfw_circle_'+colorClass);
+	            }
+
                 });
             }
 
             $(".title_"+key).each(function(){
-                $(this).html(getInfo(data).score.toLocaleString());
+                $(this).html(displayScore(getInfo(data).score));
             });
 
             $(".link_"+key).each(function(){
@@ -188,6 +215,14 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 
 var scoreSource='filmweb';  // Default ratings source website
 var readStore = "scoreSource";
+var readStore1 = "colorsChecked";
+var displayColors=false;
+chrome.storage.local.get(readStore1, function(data) {
+    if((data !== undefined) && (data[readStore1] !== undefined)) {
+	if(data['colorsChecked']==1) displayColors=true ;
+    }
+});
+
 chrome.storage.local.get(readStore, function(data) {
     if((data !== undefined) && (data[readStore] !== undefined)) scoreSource = data[readStore];
 

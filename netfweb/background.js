@@ -65,32 +65,32 @@ function getFilmwebURL(request, data, delay){
 function getFilmWeb(request, data, delay){
     if(!data["filmweb_"+request.idNetflix]){  // data about title not available in storage
         window.setTimeout(function(){
-		$.ajax({
-		    url:'https://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName).replace("'","%27"),
-		    success: function(data) {
+      		$.ajax({
+      		    url:'https://www.filmweb.pl/search?q='+encodeURIComponent(request.titleName).replace("'","%27"),
+      		    success: function(data) {
 
-			if(data.match(/top.location.href/)){
-			  var re = new RegExp("top.location.href='([^']*)", 'm');
-			  var parseURL=re.exec(data);
-			  if(parseURL != null){
-			    newURL = parseURL[0].replace(/top.location.href='([^']*).*/,"$1", "m");
-			    $.ajax({
-				url:newURL,
-				success: function(data) {
-				  getFilmwebURL(request, data, delay);
-				}
-			      });
-			  }
-			} else {
-			  getFilmwebURL(request, data, delay);
-			}
-		    }
-		});
+      			if(data.match(/top.location.href/)){
+      			  var re = new RegExp("top.location.href='([^']*)", 'm');
+      			  var parseURL=re.exec(data);
+      			  if(parseURL != null){
+      			    newURL = parseURL[0].replace(/top.location.href='([^']*).*/,"$1", "m");
+      			    $.ajax({
+      				url:newURL,
+      				success: function(data) {
+      				  getFilmwebURL(request, data, delay);
+      				}
+      			      });
+      			  }
+      			} else {
+      			  getFilmwebURL(request, data, delay);
+      			}
+      		    }
+      		});
         }, Math.random()*delay);
     } else { // data about title already in storage
         item = JSON.parse(data["filmweb_"+request.idNetflix]);
         if(item.URL && (!item.score || request.all==0)) {
-            parseFilmWeb(request.idNetflix,item.URL, item.v);
+            parseFilmWeb(request.idNetflix,item.URL, delay, item.v);
         }
     }
 }
@@ -170,7 +170,7 @@ function parseIMDB(idNetflix,targetURL, delay, v=0){
                     var parseURL=/<div class="ratingValue">[^<]*<strong[^<]*<span[^<]*<\/span/.exec(data);
                     var score = "?";
                     if(parseURL !== null){
-			score = parseURL[0].replace(/.*<span>([^<]*)<\/span/,'$1');
+			                  score = parseURL[0].replace(/.*<span itemprop="ratingValue">([^<]*)<\/span/,'$1');
                         var titleName="imdb_"+idNetflix;
                         saveScore(titleName, score.split("\n")[1], targetURL, v);
                     }
@@ -338,7 +338,7 @@ function import_maps(){
 function send_report_c(data){
     $.ajax({
         method: "POST",
-        url: "http://lina.pl/netfweb/report_c.php",
+        url: "https://www.lina.pl/netfweb/report_c.php",
         data: { data: data }
     });
 }
@@ -410,7 +410,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         } else {
             $.ajax({
                 method: "POST",
-                url: "http://lina.pl/netfweb/report.php",
+                url: "https://www.lina.pl/netfweb/report.php",
                 data: { idNetflix: request.idNetflix }
             });
         }
