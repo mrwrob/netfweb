@@ -173,7 +173,7 @@ function placeScoreBob(titleName, idNetflix, filmBox){
 }
 
 /*
- * Listens to changes in data storege and changes information about ratings
+ * Listens to changes in data storage and changes information about ratings
  */
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     titleName=score="";
