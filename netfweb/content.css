@@ -25,18 +25,22 @@ div.nfw_score{
 
 div.nfw_circle_red{
     background: rgba(100,0,0,0.7);
+    border-color: #FF0000;
 }
 
 div.nfw_circle_green{
     background: rgba(0,100,0,0.7);
+    border-color: #00FF00;
 }
 
 div.nfw_circle_yellow{
     background: rgba(100,100,0,0.7);
+    border-color: #FFFF00;
 }
 
 div.nfw_circle_orange{
     background: rgba(100,70,0,0.7);
+    border-color: #FF9900;
 }
 
 
