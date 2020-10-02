@@ -243,8 +243,8 @@ chrome.storage.local.get(readStore, function(data) {
         }
         idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
         if(titleName) {
-            if($(this).find('div.jawbone-actions')) {
-              var filmBox = $(this).find('div.jawbone-actions');
+            if($(this).find('div.meta-lists')) {
+              var filmBox = $(this).find('div.meta-lists');
               titleName2=titleName;
               idNetflix2=idNetflix
               setTimeout(function(){
@@ -297,7 +297,7 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
                     }
                     idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
                     if(idNetflix) {
-                        if($(this).find('div.jawbone-actions').length > 0) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
+                        if($(this).find('div.meta-lists').length > 0) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
                         else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
                     }
                 }
