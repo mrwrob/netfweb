@@ -21,15 +21,16 @@ function saveScore(storageID, score, targetURL, v){
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
 function parseFilmWeb(idNetflix,targetURL, delay, v=0){
+	console.log("targetURL",targetURL);
     if((targetURL.match(/filmweb/)) && (! targetURL.match(/(undefined|news|person|user|videogame)/))){
         window.setTimeout(function(){
 		$.ajax({
 		    url: targetURL,
 		    success: function(data) {
-			var parseURL=/communityRateInfo:"[^"]*"/.exec(data);
+			var parseURL=/filmRating__rateValue">[^<]*"/.exec(data);
 			var score = "?";
 			if(parseURL !== null){
-			    score = parseURL[0].replace(/.*"([^"]*)"/,'$1');
+			    score = parseURL[0].replace(/.*">([^<]*)"/,'$1');
 			    var storageID="filmweb_"+idNetflix;
 			    saveScore(storageID, score, targetURL, v);
 			}
@@ -42,7 +43,6 @@ function parseFilmWeb(idNetflix,targetURL, delay, v=0){
 
 function getFilmwebURL(request, data, delay){
   var re = new RegExp('data-title="'+request.titleName.replace(/[ \'-;,]/g,'.').replace(/[ęóąśłżźćńĘÓĄŚŁŻŹĆŃ]/g,'[^"]*')+'".*?class="filmPreview__filmTime"', 'im');
-  //var re = new RegExp('data-title=.*?class="filmPreview__filmTime"', 'im');
   var parseURL=re.exec(data);
   if(parseURL == null){
       re = new RegExp('<a class="filmPreview__link"[^>]*>[^<]*<h3 class="filmPreview__title">'+request.titleName.replace(/[ \'-;,]/g,'.')+'.*?filmPreview__filmTime', 'i');
@@ -246,7 +246,7 @@ function getNflix(request,data, delay){
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
 function parseTMDB(idNetflix,targetURL, delay, v=0){
-    if(targetURL.match(/themoviedb/)){
+    if(targetURL.match(/themoviedb/) && !targetURL.match(/680304/)){
         window.setTimeout(function(){
           apiURL=targetURL.replace(/www\.themoviedb\.org/, "api.themoviedb.org/3")+"?api_key=863a68f7de47c832b98df21711a2ec1a";
             $.ajax({

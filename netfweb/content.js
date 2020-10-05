@@ -148,7 +148,6 @@ function placeScoreBob(titleName, idNetflix, filmBox){
     chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "0", serviceDisplay: serviceDisplay});
     filmBox.append("<div class='nfw_score_bob'></div>");
     destBox = filmBox.parent().find('.nfw_score_bob');
-    // $('body').find('.title_'+idNetflix).hide();
 
     var params = {};
     if(serviceDisplay["filmweb"] != 0) params["filmweb"] = { "URL": "https://www.filmweb.pl/search?q=", "shortcut": "fw", "name": "Filmweb"};
@@ -244,13 +243,15 @@ chrome.storage.local.get(readStore, function(data) {
         idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
         if(titleName) {
             if($(this).find('div.meta-lists')) {
-              var filmBox = $(this).find('div.meta-lists');
+//              var filmBox = $(this).find('div.meta-lists');
+              var filmBox = $(this).find('div.previewModal--detailsMetadata-info');
               titleName2=titleName;
               idNetflix2=idNetflix
               setTimeout(function(){
                 placeScoreJaw(titleName2, idNetflix2, filmBox);
               }, 1000);
-            } else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+            } else placeScoreJaw(titleName, idNetflix, $(this).find('div.previewModal--detailsMetadata-info'));
+//            } else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
         }
     });
 });
@@ -290,25 +291,27 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
                 });
 
                 // For selected title (details view)
-                if($(this).attr('class').match(/jawBone(FadeInPlaceContainer|Container|OpenContainer)/)){
-                    titleName=$(this).find('div.title').text();
-                    if(!titleName){
-                        titleName=$(this).find('img.logo').attr('alt');
-                    }
-                    idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
+                if($(this).attr('class').match(/focus-trap-wrapper.previewModal--wrapper.detail-modal/)){
                     if(idNetflix) {
-                        if($(this).find('div.meta-lists').length > 0) placeScoreJaw(titleName, idNetflix, $(this).find('div.jawbone-actions'));
-                        else placeScoreJaw(titleName, idNetflix, $(this).find('div.actionsRow'));
+		    detailDialog = $(this).closest('#appMountPoint');
+                    titleName=detailDialog.find('.previewModal--player-titleTreatment-logo').attr('alt');
+		    idNetflix = detailDialog.find('div.ptrack-content').attr('data-ui-tracking-context').replace(/.*%22video_id%22:([0-9]*).*/,"$1");
+                    	placeScoreBob(titleName,idNetflix, $(this).find('div.previewModal--detailsMetadata'));
                     }
                 }
                 if($(this).attr('class').match(/bob-card/)){
-                  titleName=$(this).find('div.bob-title').text();
-                  if(!titleName){
-                      titleName=$(this).find('img.logo').attr('alt');
-                  }
-                  idNetflix = $(this).find('a').attr('href').replace(/\/title\/([0-9]*).*/,"$1");
+                  titleName=$(this).find('.bob-title').text();
+		  idNetflix = $(this).find('div.ptrack-content').attr('data-ui-tracking-context').replace(/.*%22video_id%22:([0-9]*).*/,"$1");
                   if(idNetflix) {
-                    placeScoreBob(titleName,idNetflix, $(this).find('div.bob-overlay'));
+                    placeScoreBob(titleName,idNetflix, $(this).find('div.previewModal--popup'));
+                  }
+                }
+
+                if($(this).attr('class').match(/focus-trap-wrapper.previewModal--wrapper.mini-modal/)){
+                  titleName=$(this).find('.previewModal--boxart').attr('alt');
+		  idNetflix = $(this).find('div.ptrack-content').attr('data-ui-tracking-context').replace(/.*%22video_id%22:([0-9]*).*/,"$1");
+                  if(idNetflix) {
+                    placeScoreBob(titleName,idNetflix, $(this).find('div.previewModal--info'));
                   }
                 }
             }
