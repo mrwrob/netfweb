@@ -108,10 +108,10 @@ function parseMetacritic(idNetflix,targetURL, delay, v=0){
             $.ajax({
                 url: targetURL,
                 success: function(data) {
-                    var parseURL=/setTargeting\("score", "[^"]*"/.exec(data);
+                    var parseURL=/setTargeting\({"score": "[^"]*"/.exec(data);
                     var score = "?";
                     if(parseURL !== null){
-                        score = parseURL[0].replace(/setTargeting\("score", "([^"]*)"/,'$1');
+                        score = parseURL[0].replace(/setTargeting\({"score": "([^"]*)"/,'$1');
                         var titleName="metacritic_"+idNetflix;
                         saveScore(titleName, score, targetURL, v);
                     }
