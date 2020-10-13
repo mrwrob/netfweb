@@ -75,3 +75,7 @@ $('#filmweb').click(function(){
 $('#imdb').click(function(){
     readDB("imdb");
 });
+
+$('#rotten_tomatoes').click(function(){
+    readDB("rotten_tomatoes");
+});

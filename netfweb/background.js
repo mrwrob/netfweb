@@ -292,6 +292,34 @@ function getTMDb(request,data, delay){
 }
 
 /**
+ * Searches for the Rotten Tomatoes website with title's rating
+ * @param {json} request - JSON with information about title (idNetflix, titleName)
+ * @param {object} data - data read from storage
+ * @param {integer} delay - number of delay before fetching website
+ */
+function getRottenTomatoes(request, data, delay){
+  if(!data["rotten_tomatoes_"+request.idNetflix]){
+    window.setTimeout(function(){
+      $.ajax({
+          url: 'https://www.rottentomatoes.com/search?search='+encodeURIComponent(request.titleName.replace("'"," ")),
+          success: function(data) {
+            var titleNameRegexStr = request.titleName.replace(/[^\w&]+/g,'\\W+').replace(/&/g,'\(?:And\|&\)');
+            var re = new RegExp('name":"'+titleNameRegexStr+'","url":"([^"]*)","tomatometerScore":{"score":"(\\d+)', 'i');
+            var [,targetURL, score] = re.exec(data) || [];
+            if(targetURL !== null && score !== null){
+              score = score / 10;
+              var titleName = "rotten_tomatoes_"+request.idNetflix;
+              saveScore(titleName, score, targetURL, 0);
+            }
+          }
+        })
+      },
+      Math.random()*delay
+    );
+  }
+}
+
+/**
  * Update storege with new mapping between source service URL and title
  * @param {string} idNetflix - title's netflix ID
  * @param {string} source - rating website name (filmweb, metacritic, imdb)
@@ -390,6 +418,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                      getNflix(request, data, delay) ;
                 });
             }
+            if(((request.all=="0")&&(request.serviceDisplay.rotten_tomatoes == 1)) || (scoreSource=='rotten_tomatoes')){
+                readStore = {};
+                readStore["rotten_tomatoes_"+request.idNetflix] = '';
+                chrome.storage.local.get(readStore, function(data){
+                     getRottenTomatoes(request, data, delay) ;
+                });
+            }
         });
 
     }else if(request.type=="report"){
@@ -400,6 +435,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             else if (request.source=='me') readStore1 = "metacritic_"+request.idNetflix;
             else if (request.source=='im') readStore1 = "imdb_"+request.idNetflix;
             else if (request.source=='tm') readStore1 = "tmdb_"+request.idNetflix;
+            else if (request.source=='rt') readStore1 = "rotten_tomatoes_"+request.idNetflix;
 
             chrome.storage.local.get(readStore1, function(data) {
                 var infoJSON = JSON.parse(data[readStore1]);
@@ -430,6 +466,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         } else if(newData[1].match(/themoviedb/)) {
             parseTMDB(newData[0], newData[1], 1);
             saveScore("tmdb_"+newData[0], '?', newData[1], '0');
+        } else if(newData[1].match(/rotten_tomatoes/)) {
+            parseRottenTomatoes(newData[0], newData[1], 1);
+            saveScore("rotten_tomatoes_"+newData[0], '?', newData[1], '0');
         }
 
     }else if(request.type=="getTitle"){

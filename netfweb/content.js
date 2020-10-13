@@ -109,6 +109,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     if(serviceDisplay["imdb"] != 0) params["imdb"] ={ "URL": "http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q=", "shortcut": "im", "name": "IMDb"};
     if(serviceDisplay["tmdb"] != 0) params["tmdb"] = { "URL": "https://www.themoviedb.org/search?query=", "shortcut": "tm", "name": "TheMovieDB"};
     if(serviceDisplay["nflix"] != 0) params["nflix"] = { "shortcut": "nf", "name": "Nflix.pl"};
+    if(serviceDisplay["rotten_tomatoes"] != 0) params["rotten_tomatoes"] = { "URL": "https://www.rottentomatoes.com/search?search=", "shortcut": "rt", "name": "Rotten Tomatoes"};
 
     Object.keys(params).forEach(function(source){
       var readStore = source+"_"+idNetflix;
@@ -155,6 +156,7 @@ function placeScoreBob(titleName, idNetflix, filmBox){
     if(serviceDisplay["imdb"] != 0) params["imdb"] ={ "URL": "http://www.imdb.com/find?ref_=nv_sr_fn&s=all&q=", "shortcut": "im", "name": "IMDb"};
     if(serviceDisplay["tmdb"] != 0) params["tmdb"] = { "URL": "https://www.themoviedb.org/search?query=", "shortcut": "tm", "name": "TheMovieDB"};
     if(serviceDisplay["nflix"] != 0) params["nflix"] = { "shortcut": "nf", "name": "Nflix.pl"};
+    if(serviceDisplay["rotten_tomatoes"] != 0) params["rotten_tomatoes"] = { "URL": "https://www.rottentomatoes.com/search?search=", "shortcut": "rt", "name": "Rotten Tomatoes"};
 
     Object.keys(params).forEach(function(source){
       var readStore = source+"_"+idNetflix;
@@ -256,8 +258,8 @@ chrome.storage.local.get(readStore, function(data) {
     });
 });
 
-var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix"];
-var serviceDisplay = {"filmweb": 1, "imdb": 1, "tmdb": 1, "metacritic": 1, "nflix": 1}
+var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes"];
+var serviceDisplay = {"filmweb": 1, "imdb": 1, "tmdb": 1, "metacritic": 1, "nflix": 1, "rotten_tomatoes": 1}
 
 for(var service of servicesArray){
   chrome.storage.local.get("scoreChecked_"+service, function(data) {
