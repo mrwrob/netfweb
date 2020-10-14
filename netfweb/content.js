@@ -110,6 +110,7 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
     if(serviceDisplay["tmdb"] != 0) params["tmdb"] = { "URL": "https://www.themoviedb.org/search?query=", "shortcut": "tm", "name": "TheMovieDB"};
     if(serviceDisplay["nflix"] != 0) params["nflix"] = { "shortcut": "nf", "name": "Nflix.pl"};
     if(serviceDisplay["rotten_tomatoes"] != 0) params["rotten_tomatoes"] = { "URL": "https://www.rottentomatoes.com/search?search=", "shortcut": "rt", "name": "Rotten Tomatoes"};
+    if(serviceDisplay["film_affinity"] != 0) params["film_affinity"] = { "URL": "https://www.filmaffinity.com/us/search.php?stext=", "shortcut": "fa", "name": "FilmAffinity"};
 
     Object.keys(params).forEach(function(source){
       var readStore = source+"_"+idNetflix;
@@ -157,6 +158,7 @@ function placeScoreBob(titleName, idNetflix, filmBox){
     if(serviceDisplay["tmdb"] != 0) params["tmdb"] = { "URL": "https://www.themoviedb.org/search?query=", "shortcut": "tm", "name": "TheMovieDB"};
     if(serviceDisplay["nflix"] != 0) params["nflix"] = { "shortcut": "nf", "name": "Nflix.pl"};
     if(serviceDisplay["rotten_tomatoes"] != 0) params["rotten_tomatoes"] = { "URL": "https://www.rottentomatoes.com/search?search=", "shortcut": "rt", "name": "Rotten Tomatoes"};
+    if(serviceDisplay["film_affinity"] != 0) params["film_affinity"] = { "URL": "https://www.filmaffinity.com/us/search.php?stext=", "shortcut": "fa", "name": "FilmAffinity"};
 
     Object.keys(params).forEach(function(source){
       var readStore = source+"_"+idNetflix;
@@ -258,8 +260,8 @@ chrome.storage.local.get(readStore, function(data) {
     });
 });
 
-var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes"];
-var serviceDisplay = {"filmweb": 1, "imdb": 1, "tmdb": 1, "metacritic": 1, "nflix": 1, "rotten_tomatoes": 1}
+var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes", "film_affinity"];
+var serviceDisplay = {"filmweb": 1, "imdb": 1, "tmdb": 1, "metacritic": 1, "nflix": 1, "rotten_tomatoes": 1, "film_affinity": 1}
 
 for(var service of servicesArray){
   chrome.storage.local.get("scoreChecked_"+service, function(data) {

@@ -79,3 +79,7 @@ $('#imdb').click(function(){
 $('#rotten_tomatoes').click(function(){
     readDB("rotten_tomatoes");
 });
+
+$('#film_affinity').click(function(){
+    readDB("film_affinity");
+});
