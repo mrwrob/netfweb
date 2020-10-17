@@ -46,7 +46,7 @@ chrome.storage.local.get(readStore, function(data) {
     }
 });
 
-var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes"];
+var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes", "film_affinity"];
 
 for(var service of servicesArray){
   chrome.storage.local.get("scoreChecked_"+service, function(data) {
@@ -74,7 +74,7 @@ chrome.storage.local.get(readStore, function(data) {
 
 /* Handles user mapping on filmweb, metacritic and imdb websites */
 chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-    if(tabs[0].url.match('filmweb.pl|metacritic.com|imdb.com|themoviedb.org|rottentomatoes.com')){
+    if(tabs[0].url.match('filmweb.pl|metacritic.com|imdb.com|themoviedb.org|rottentomatoes.com|filmaffinity.com')){
         var readStore = "clipboard";
         chrome.storage.local.get(readStore, function(data) {
             if(data && data['clipboard']){

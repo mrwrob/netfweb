@@ -27,7 +27,7 @@ chrome.storage.local.get(readStore, function(data) {
 
 $("#new_user").show();
 
-var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes"];
+var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes", "film_affinity"];
 var count=0;
 for(var service of servicesArray){
   count++;
