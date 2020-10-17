@@ -34,19 +34,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 var readStore = "scoreSource";
-$('#filmweb').css('font-weight', 'bold');
+$('#tmdb').css('font-weight', 'bold');
 
 /* Gets selected source website from storage */
 chrome.storage.local.get(readStore, function(data) {
     if(data === undefined || data[readStore] === undefined){
-        $('#filmweb').css('font-weight', 'bold');
+        $('#tmdb').css('font-weight', 'bold');
     } else{
-        $('#filmweb').css('font-weight', 'none');
+        $('#tmdb').css('font-weight', 'none');
         $('#'+data[readStore]).css('font-weight', 'bold');
     }
 });
 
-var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes"];
+var servicesArray = ["tmdb", "imdb",  "rotten_tomatoes", "metacritic", "filmweb"];
 
 for(var service of servicesArray){
   chrome.storage.local.get("scoreChecked_"+service, function(data) {
@@ -64,9 +64,9 @@ for(var service of servicesArray){
 /* Gets selected source website from storage */
 chrome.storage.local.get(readStore, function(data) {
     if(data === undefined || data[readStore] === undefined){
-        $('#filmweb').css('font-weight', 'bold');
+        $('#tmdb').css('font-weight', 'bold');
     } else{
-        $('#filmweb').css('font-weight', 'none');
+        $('#tmdb').css('font-weight', 'none');
         $('#'+data[readStore]).css('font-weight', 'bold');
     }
 

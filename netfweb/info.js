@@ -3,7 +3,7 @@ var readStore1 = "colorsChecked";
 /* Gets selected source website from storage */
 chrome.storage.local.get(readStore1, function(data) {
   if(data !== undefined || data[readStore1] !== undefined){
-	if(data[readStore1]==1)  $("#colors_checkbox").prop('checked', true);
+	if(data[readStore1]==0)  $("#colors_checkbox").prop('checked', false);
       }
 });
 
@@ -17,7 +17,6 @@ chrome.storage.local.get(readStore, function(data) {
     var keyValue = Object.keys(data)[0];
     if(keyValue !== undefined){
       if(data[keyValue]){
-        console.log("BOOOM");
         mod=1;
         $("#"+data[keyValue]+"_radio").prop('checked', true);
       }
@@ -27,11 +26,12 @@ chrome.storage.local.get(readStore, function(data) {
 
 $("#new_user").show();
 
-var servicesArray = ["filmweb", "imdb", "tmdb", "metacritic", "nflix", "rotten_tomatoes"];
+var servicesArray = ["tmdb", "imdb",  "rotten_tomatoes", "metacritic", "filmweb"];
 var count=0;
 for(var service of servicesArray){
   count++;
   chrome.storage.local.get("scoreChecked_"+service, function(data) {
+      console.log(data);
       if(data !== undefined || data[readStore] !== undefined){
         var keyValue = Object.keys(data)[0];
         if(keyValue !== undefined){

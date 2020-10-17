@@ -3,7 +3,7 @@
 
   "name": "Film scores for Netflix",
   "short_name": "netfweb",
-  "version": "0.9.3",
+  "version": "1.0.0",
   "description": "Enriches Netflix site with a ratings based on the scores from most popular review websites.",
   "permissions": [
     "https://www.netflix.com/",
@@ -13,7 +13,6 @@
     "https://www.metacritic.com/",
     "https://www.imdb.com/",
     "https://www.lina.pl/",
-    "http://api.nflix.pl/",
     "https://www.rottentomatoes.com/",
     "storage",
     "tabs"
