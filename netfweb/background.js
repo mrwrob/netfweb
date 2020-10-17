@@ -293,6 +293,73 @@ function getRottenTomatoes(request, data, delay){
 }
 
 /**
+ * Parse the FilmAffinity website to get the title's rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} delay - number of delay before fetching website
+ * @param {integer} v - verification status (1 - verified, 0 - unverified)
+ */
+function parseFilmAffinity(idNetflix, targetURL, delay, v=0){
+  if(targetURL.match(/filmaffinity/)){
+    window.setTimeout(function(){
+      $.ajax({
+        url: targetURL,
+        success: function(data) {
+          var titleName = "film_affinity_"+idNetflix;
+          var regexStr = '<div id="movie-rat-avg" itemprop="ratingValue" content="(\\d+\.?\\d*)';
+          var scoreRegExp = new RegExp(regexStr, "i");
+          var [, score] = scoreRegExp.exec(data) || [];
+          if (score) {
+            saveScore(titleName, score, targetURL, 0);
+          } else {
+            console.error(`[FilmAffinity] score for "${titleName}" not found on "${targetURL}" using "${scoreRegExp}"`);
+          }
+        }
+      });
+    }, Math.random() * delay);
+  }
+}
+
+/**
+ * Searches for the FilmAffinity website with title's rating
+ * @param {json} request - JSON with information about title (idNetflix, titleName)
+ * @param {object} data - data read from storage
+ * @param {integer} delay - number of delay before fetching website
+ */
+function getFilmAffinity(request, data, delay) {
+  if (!data["film_affinity_"+request.idNetflix]) {
+    var searchTitleName = request.titleName.replace("Marvel's ", "");
+    var searchURL = "https://www.filmaffinity.com/us/search.php?stext=" + encodeURIComponent(searchTitleName);
+    window.setTimeout(function(){
+      $.ajax({
+        url: searchURL,
+        success: function(data) {
+          var canonicalURL, targetURL, targetUrlRegExp;
+          [, canonicalURL] = new RegExp('<meta property="og:url" content="([^"]*)').exec(data) || [];
+          if (canonicalURL && canonicalURL.startsWith("https://www.filmaffinity.com/us/film")) {
+            targetURL = canonicalURL;
+          } else {
+            var nameRegexStr = request.titleName
+              .replace(/&/g, "\(?:And\|&|&amp;|\\+\)")
+              .replace(/2/g, "\(?:2|²\)")
+              .replace(/3/g, "\(?:3|³\)")
+              .replace("Marvel's ", "\(?:Marvel's \)?");
+            var regexStr = '<div class="mc-title"><a +href="([^"]*)" title="' + nameRegexStr + '\\s?(?:\\(TV (?:Mini)?Series\\))?"';
+            targetUrlRegExp = new RegExp(regexStr, "i");
+            [, targetURL] = targetUrlRegExp.exec(data) || [];
+          }
+          if (targetURL) {
+            parseFilmAffinity(request.idNetflix, targetURL, delay);
+          } else {
+            console.error(`[FilmAffinity] targetURL for "${request.titleName}" not found on "${canonicalURL}" using "${targetUrlRegExp}"`);
+          }
+        }
+      })
+    }, Math.random() * delay);
+  }
+}
+
+/**
  * Update storege with new mapping between source service URL and title
  * @param {string} idNetflix - title's netflix ID
  * @param {string} source - rating website name (filmweb, metacritic, imdb)
@@ -391,7 +458,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                      getRottenTomatoes(request, data, delay) ;
                 });
             }
-        });
+            if(((request.all=="0")&&(request.serviceDisplay.film_affinity == 1)) || (scoreSource=='film_affinity')){
+              readStore = {};
+              readStore["film_affinity_"+request.idNetflix] = '';
+              chrome.storage.local.get(readStore, function(data){
+                   getFilmAffinity(request, data, delay) ;
+              });
+          }
+      });
 
     }else if(request.type=="report"){
    /* Request for sending report */
@@ -402,6 +476,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
             else if (request.source=='im') readStore1 = "imdb_"+request.idNetflix;
             else if (request.source=='tm') readStore1 = "tmdb_"+request.idNetflix;
             else if (request.source=='rt') readStore1 = "rotten_tomatoes_"+request.idNetflix;
+            else if (request.source=='fa') readStore1 = "film_affinity_"+request.idNetflix;
 
             chrome.storage.local.get(readStore1, function(data) {
                 var infoJSON = JSON.parse(data[readStore1]);
@@ -435,6 +510,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         } else if(newData[1].match(/rotten_tomatoes/)) {
             parseRottenTomatoes(newData[0], newData[1], 1);
             saveScore("rotten_tomatoes_"+newData[0], '?', newData[1], '0');
+        } else if(newData[1].match(/film_affinity/)) {
+            parseFilAffinity(newData[0], newData[1], 1);
+            saveScore("film_affinity_"+newData[0], '?', newData[1], '0');
         }
 
     }else if(request.type=="getTitle"){
