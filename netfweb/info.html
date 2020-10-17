@@ -221,26 +221,25 @@
             <h3>configure</h3><a name='about'></a>
             <p>Select services from which the ratings will be displayed::</p>
             <ul>
-              <li><input id="filmweb_check" class="nfw_checkbox" type="checkbox"> Filmweb.pl </li>
-              <li><input id="metacritic_check" class="nfw_checkbox" type="checkbox"> Metacritic </li>
-              <li><input id="imdb_check" class="nfw_checkbox" type="checkbox" checked="checked"> IMDb</li>
               <li><input id="tmdb_check" class="nfw_checkbox" type="checkbox" checked="checked"> TheMovieDB</li>
-              <li><input id="nflix_check" class="nfw_checkbox" type="checkbox"> Nflix.pl</li>
-              <li><input id="rotten_tomatoes_check" class="nfw_checkbox" type="checkbox">Rotten Tomatoes</li>
+              <li><input id="imdb_check" class="nfw_checkbox" type="checkbox" checked="checked"> IMDb</li>
+              <li><input id="rotten_tomatoes_check" class="nfw_checkbox" type="checkbox" checked="checked"> Rotten Tomatoes</li>
               <li><input id="film_affinity_check" class="nfw_checkbox" type="checkbox"> FilmAffinity </li>
-            </ul>
+              <li><input id="filmweb_check" class="nfw_checkbox" type="checkbox"> Filmweb.pl </li>
+              <li><input id="metacritic_check" class="nfw_checkbox" type="checkbox" checked="checked"> Metacritic </li>        
+             </ul>
 
             <p>Select the default service from which ratings will be displayed on main page:</p>
             <ul>
+              <li><input id="tmdb_radio" class="nfw_checkbox" type="radio" checked name='default'> TheMovieDB</li>
+              <li><input id="imdb_radio" class="nfw_checkbox" type="radio"  name='default'> IMDb</li>
+              <li><input id="rotten_tomatoes_radio" class="nfw_checkbox" type="radio" name='default'> Rotten Tomatoes</li>
+              <li><input id="film_affinity_radio" class="nfw_checkbox" type="radio" name='default'> FilmAffinity </li>
               <li><input id="filmweb_radio" class="nfw_checkbox" type="radio" name='default'> Filmweb.pl </li>
               <li><input id="metacritic_radio" class="nfw_checkbox" type="radio" name='default'> Metacritic </li>
-              <li><input id="imdb_radio" class="nfw_checkbox" type="radio"  name='default'> IMDb</li>
-              <li><input id="tmdb_radio" class="nfw_checkbox" type="radio" checked name='default'> TheMovieDB</li>
-              <li><input id="nflix_radio" class="nfw_checkbox" type="radio" name='default'> Nflix.pl</li>
-              <li><input id="rotten_tomatoes_radio" class="nfw_checkbox" type="radio" name='default'>Rotten Tomatoes</li>
-              <li><input id="film_affinity_radio" class="nfw_checkbox" type="radio" name='default'> FilmAffinity </li>
+
             </ul>
-	    <p>Color circles with the ratings: <input id="colors_checkbox" class="nfw_checkbox" type="checkbox">
+      	    <p>Color circles with the ratings: <input id="colors_checkbox" class="nfw_checkbox" type="checkbox" checked="checked">
             <p><button id='save_default'>Save</button> <span id='conf_reload'>Reload Netflix.com after modfifications</span>
         </div>
         <div class='desc'>
@@ -264,6 +263,8 @@
 
         <div class='desc'>
             <h3>changelog</h3><a name='changelog'></a>
+            <h4> 1.0.0</h4>
+            <p>Rotten Tomatoes ratings! Big thanks for @elchenberg!</p>
             <h4> 0.9.3</h4>
             <p>Metacritic ratings fixed (thx @elchenberg), new mappings.</p>
             <h4> 0.9.2</h4>

@@ -212,33 +212,6 @@ function getIMDB(request, data, delay){
 }
 
 /**
- * Get Nflix rating
- * @param {string} idNetflix - title's netflix ID
- * @param {string} targetURL - URL of title's website on the source website
- * @param {integer} delay - number of delay before fetching website
- */
-function getNflix(request,data, delay){
-    if(!data["nflix_"+request.idNetflix]){
-        $.ajax({
-            url:'http://api.nflix.pl/api_netflix_rating/?k=Lhygft5dfrte4&o=r&c=pl&netflix_id='+request.idNetflix,
-            success: function(data) {
-                if(data !== null){
-                        var score = data;
-                        var titleName="nflix_"+request.idNetflix;
-                        var targetURL = 'https://www.nflix.pl/netflix-polska/opis/?i='+request.idNetflix;
-                        var nflixJSON = JSON.stringify({ 'score': score, 'URL' : targetURL });
-                        var save = {};
-                        if(score != ("5,02")){
-                          save[titleName] = nflixJSON;
-                          chrome.storage.local.set(save);
-                        }
-                }
-             }
-         });
-    }
-}
-
-/**
  * Parse the TheMovieDB.org website to get the title's rating
  * @param {string} idNetflix - title's netflix ID
  * @param {string} targetURL - URL of title's website on the source website
@@ -447,7 +420,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         if(request.all=="1") delay=30000;
         var readStore = "scoreSource";
         chrome.storage.local.get(readStore, function(data) {
-            var scoreSource='filmweb';
+            var scoreSource='tmdb';
             if(data && data.scoreSource) scoreSource = data.scoreSource;
 
             var readStore = {};
@@ -478,14 +451,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                      getIMDB(request, data, delay) ;
                 });
             }
-            if(((request.all=="0")&&(request.serviceDisplay.nflix == 1)) || (scoreSource=='nflix')){
-                readStore = {};
-                readStore["nflix"+request.idNetflix] = '';
-                chrome.storage.local.get(readStore, function(data){
-                     getNflix(request, data, delay) ;
-                });
-            }
-            if(((request.all=="0")&&(request.serviceDisplay.rotten_tomatoes == 1)) || (scoreSource=='rotten_tomatoes')){
+           if(((request.all=="0")&&(request.serviceDisplay.rotten_tomatoes == 1)) || (scoreSource=='rotten_tomatoes')){
                 readStore = {};
                 readStore["rotten_tomatoes_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
