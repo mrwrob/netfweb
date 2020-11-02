@@ -380,7 +380,7 @@ function parseTraktTV(idNetflix,targetURL, delay, v=0){
 		request_.setRequestHeader('trakt-api-version', '2');
 		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
 		request_.onreadystatechange = function () {
-			if (this.readyState === 4 && this.response) {
+			if (this.readyState === 4) {
 				var score = Math.round(this.response['rating']*10)/10;
 				var titleName="trakt_tv_"+idNetflix;
 				saveScore(titleName, score, targetURL, v);
@@ -406,7 +406,7 @@ function getTraktTV(request, data, delay){
 		request_.setRequestHeader('trakt-api-version', '2');
 		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
 		request_.onreadystatechange = function () {
-			if (this.readyState === 4 && this.response[0]) {
+			if (this.readyState === 4) {
 				var type = this.response[0]['type']
 				var Slug = this.response[0][type]['ids']['slug'];
 				var targetURL = 'https://trakt.tv/' + type + 's/' + Slug;
