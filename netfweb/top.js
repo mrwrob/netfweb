@@ -83,3 +83,7 @@ $('#rotten_tomatoes').click(function(){
 $('#film_affinity').click(function(){
     readDB("film_affinity");
 });
+
+$('#trakt_tv').click(function(){
+    readDB("trakt_tv");
+});

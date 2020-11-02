@@ -7,8 +7,8 @@ $('body').append("<div id='hidden'></div>");
  * @param {string} targetURL - URL of title's website on the source website
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
-function saveScore(storageID, score, targetURL, v){
-    var infoJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v });
+function saveScore(storageID, score, targetURL, v, seen=0){
+    var infoJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v, 'seen' :  seen});
     var save = {};
     save[storageID] = infoJSON;
     chrome.storage.local.set(save);
@@ -360,6 +360,66 @@ function getFilmAffinity(request, data, delay) {
 }
 
 /**
+ * Parse the Trakt TV website to get the title's rating
+ * @param {string} idNetflix - title's netflix ID
+ * @param {string} targetURL - URL of title's website on the source website
+ * @param {integer} delay - number of delay before fetching website
+ * @param {integer} v - verification status (1 - verified, 0 - unverified)
+ */
+function parseTraktTV(idNetflix,targetURL, delay, v=0){
+	if(targetURL.match(/trakt/)){
+		document.cookie = 'SameSite=None; Secure';
+		var request_ = new XMLHttpRequest();
+		request_.responseType = 'json';
+		request_.open('GET', targetURL.replace('https://trakt.tv/', 'https://api.trakt.tv/') + '/ratings');
+		request_.setRequestHeader('Content-Type', 'application/json');
+		request_.setRequestHeader('trakt-api-version', '2');
+		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
+		request_.onreadystatechange = function () {
+			if (this.readyState === 4) {
+				var score = Math.round(this.response['rating']*10)/10;
+				var titleName="trakt_tv_"+idNetflix;
+				saveScore(titleName, score, targetURL, v);
+			}
+		};
+		request_.send();
+    }
+}
+
+/**
+ * Searches for the Trakt TV website with title's rating
+ * @param {json} request - JSON with information about title (idNetflix, titleName)
+ * @param {object} data - data read from storage
+ * @param {integer} delay - number of delay before fetching website
+ */
+function getTraktTV(request, data, delay){
+	if(!data["trakt_tv_"+request.idNetflix]){
+		document.cookie = 'SameSite=None; Secure';
+		var request_ = new XMLHttpRequest();
+		request_.responseType = 'json';
+		request_.open('GET', 'https://api.trakt.tv/search?query=' + encodeURIComponent(request.titleName));
+		request_.setRequestHeader('Content-Type', 'application/json');
+		request_.setRequestHeader('trakt-api-version', '2');
+		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
+		request_.onreadystatechange = function () {
+			if (this.readyState === 4) {
+				var type = this.response[0]['type']
+				var Slug = this.response[0][type]['ids']['slug'];
+				var targetURL = 'https://trakt.tv/' + type + 's/' + Slug;
+				parseTraktTV(request.idNetflix,targetURL, 1000);
+			}
+		};
+		request_.send();
+	}else { // data about title already in storage
+        item = JSON.parse(data['trakt_tv_' + request.idNetflix]);
+        if(item.URL && (!item.score || request.all == 0) ) {
+            parseTraktTV(request.idNetflix,item.URL, delay, item.v);
+        }
+    }
+}
+
+
+/**
  * Update storege with new mapping between source service URL and title
  * @param {string} idNetflix - title's netflix ID
  * @param {string} source - rating website name (filmweb, metacritic, imdb)
@@ -392,10 +452,12 @@ function import_maps(){
       for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'https://www.imdb.com/'+map_imdb[idNetflix]);
       for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'https://www.metacritic.com/'+map_metacritic[idNetflix]);
       for (var idNetflix in  map_tmdb) update_map(idNetflix, 'tmdb', 'https://www.themoviedb.org/'+map_tmdb[idNetflix]);
+	  for (var idNetflix in  map_trakttv) update_map(idNetflix, 'trakttv', 'https://trakt.tv/'+map_trakttv[idNetflix]);
       map_filmweb="";
       map_metacritic="";
       map_imdb="";
       map_tmdb="";
+	  map_trakttv="";
     });
 }
 
@@ -451,7 +513,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
                      getIMDB(request, data, delay) ;
                 });
             }
-           if(((request.all=="0")&&(request.serviceDisplay.rotten_tomatoes == 1)) || (scoreSource=='rotten_tomatoes')){
+            if(((request.all=="0")&&(request.serviceDisplay.rotten_tomatoes == 1)) || (scoreSource=='rotten_tomatoes')){
                 readStore = {};
                 readStore["rotten_tomatoes_"+request.idNetflix] = '';
                 chrome.storage.local.get(readStore, function(data){
@@ -464,6 +526,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
               chrome.storage.local.get(readStore, function(data){
                    getFilmAffinity(request, data, delay) ;
               });
+			} 
+			if(((request.all=="0")&&(request.serviceDisplay.trakt_tv == 1)) || (scoreSource=='trakt_tv')){
+            readStore = {};
+            readStore["trakt_tv_"+request.idNetflix] = '';
+            chrome.storage.local.get(readStore, function(data){
+                 getTraktTV(request, data, delay) ;
+            });
           }
       });
 
@@ -513,6 +582,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
         } else if(newData[1].match(/film_affinity/)) {
             parseFilAffinity(newData[0], newData[1], 1);
             saveScore("film_affinity_"+newData[0], '?', newData[1], '0');
+        } else if(newData[1].match(/trakt_tv/)) {
+            parseFilAffinity(newData[0], newData[1], 1);
+            saveScore("trakt_tv_"+newData[0], '?', newData[1], '0');
         }
 
     }else if(request.type=="getTitle"){
