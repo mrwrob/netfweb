@@ -21,7 +21,6 @@ function saveScore(storageID, score, targetURL, v, seen=0){
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
 function parseFilmWeb(idNetflix,targetURL, delay, v=0){
-	console.log("targetURL",targetURL);
     if((targetURL.match(/filmweb/)) && (! targetURL.match(/(undefined|news|person|user|videogame)/))){
         window.setTimeout(function(){
 		$.ajax({
@@ -42,8 +41,9 @@ function parseFilmWeb(idNetflix,targetURL, delay, v=0){
 
 
 function getFilmwebURL(request, data, delay){
-  var re = new RegExp('data-title="'+request.titleName.replace(/[ \'-;,]/g,'.').replace(/[ęóąśłżźćńĘÓĄŚŁŻŹĆŃ]/g,'[^"]*')+'".*?class="filmPreview__filmTime"', 'im');
+  var re = new RegExp('data-title="'+request.titleName.replace(/[\'-;,\?]/g,'.').replace(/[  ęóąśłżźćńĘÓĄŚŁŻŹĆŃ]/g,'[^"]*')+'".*?class="filmPreview__description"', 'im');
   var parseURL=re.exec(data);
+
   if(parseURL == null){
       re = new RegExp('<a class="filmPreview__link"[^>]*>[^<]*<h3 class="filmPreview__title">'+request.titleName.replace(/[ \'-;,]/g,'.')+'.*?filmPreview__filmTime', 'i');
       parseURL=re.exec(data);
@@ -51,7 +51,9 @@ function getFilmwebURL(request, data, delay){
 
   if((parseURL !== null)&&(!parseURL[0].match("Zielona.mila"))){
       var targetURL = "https://www.filmweb.pl"+parseURL[0].replace(/.*?class="filmPreview__link" href="([^"]*)".*/,'$1');
-      parseFilmWeb(request.idNetflix,targetURL, delay);
+      var score = parseURL[0].replace(/.*"ratingValue">([^<]*).*/,'$1')
+      var storageID="filmweb_"+request.idNetflix;
+      saveScore(storageID, score, targetURL, 0);
   }
 
 }
@@ -248,7 +250,7 @@ function getTMDb(request,data, delay){
     if(!data["tmdb_"+request.idNetflix]){
       window.setTimeout(function(){
         $.getJSON('https://api.themoviedb.org/3/search/multi?api_key=863a68f7de47c832b98df21711a2ec1a&query='+encodeURIComponent(request.titleName).replace("'","%27"), function(data) {
-                if(data !== null){
+                if(data !== null && data.results[0]){
                   var score = Math.round(data.results[0].vote_average*10)/10;
                   var titleName="tmdb_"+request.idNetflix;
                   var targetURL = 'https://www.themoviedb.org/'+data.results[0].media_type+'/'+data.results[0].id;
@@ -376,7 +378,7 @@ function parseTraktTV(idNetflix,targetURL, delay, v=0){
 		request_.setRequestHeader('trakt-api-version', '2');
 		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
 		request_.onreadystatechange = function () {
-			if (this.readyState === 4) {
+			if (this.readyState === 4 && this.response) {
 				var score = Math.round(this.response['rating']*10)/10;
 				var titleName="trakt_tv_"+idNetflix;
 				saveScore(titleName, score, targetURL, v);
@@ -402,7 +404,7 @@ function getTraktTV(request, data, delay){
 		request_.setRequestHeader('trakt-api-version', '2');
 		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
 		request_.onreadystatechange = function () {
-			if (this.readyState === 4) {
+			if (this.readyState === 4 && this.response[0]) {
 				var type = this.response[0]['type']
 				var Slug = this.response[0][type]['ids']['slug'];
 				var targetURL = 'https://trakt.tv/' + type + 's/' + Slug;
@@ -448,12 +450,12 @@ function import_maps(){
     var readStore = {};
     readStore["control"] = '';
     chrome.storage.local.get(readStore, function(data){
-      for (var idNetflix in  map_filmweb) update_map(idNetflix, 'filmweb', 'https://www.filmweb.pl/'+map_filmweb[idNetflix]);
+//      for (var idNetflix in  map_filmweb) update_map(idNetflix, 'filmweb', 'https://www.filmweb.pl/'+map_filmweb[idNetflix]);
       for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'https://www.imdb.com/'+map_imdb[idNetflix]);
       for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'https://www.metacritic.com/'+map_metacritic[idNetflix]);
       for (var idNetflix in  map_tmdb) update_map(idNetflix, 'tmdb', 'https://www.themoviedb.org/'+map_tmdb[idNetflix]);
 	  for (var idNetflix in  map_trakttv) update_map(idNetflix, 'trakttv', 'https://trakt.tv/'+map_trakttv[idNetflix]);
-      map_filmweb="";
+//      map_filmweb="";
       map_metacritic="";
       map_imdb="";
       map_tmdb="";
