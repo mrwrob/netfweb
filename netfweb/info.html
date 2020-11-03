@@ -224,9 +224,9 @@
               <li><input id="tmdb_check" class="nfw_checkbox" type="checkbox" checked="checked"> TheMovieDB</li>
               <li><input id="imdb_check" class="nfw_checkbox" type="checkbox" checked="checked"> IMDb</li>
               <li><input id="rotten_tomatoes_check" class="nfw_checkbox" type="checkbox" checked="checked"> Rotten Tomatoes</li>
-              <li><input id="film_affinity_check" class="nfw_checkbox" type="checkbox"> FilmAffinity </li>
-              <li><input id="filmweb_check" class="nfw_checkbox" type="checkbox"> Filmweb.pl </li>
+              <li><input id="film_affinity_check" class="nfw_checkbox" type="checkbox" checked="checked"> FilmAffinity </li>
               <li><input id="metacritic_check" class="nfw_checkbox" type="checkbox" checked="checked"> Metacritic </li>        
+              <li><input id="filmweb_check" class="nfw_checkbox" type="checkbox"> Filmweb.pl </li>
              </ul>
 
             <p>Select the default service from which ratings will be displayed on main page:</p>
@@ -235,8 +235,8 @@
               <li><input id="imdb_radio" class="nfw_checkbox" type="radio"  name='default'> IMDb</li>
               <li><input id="rotten_tomatoes_radio" class="nfw_checkbox" type="radio" name='default'> Rotten Tomatoes</li>
               <li><input id="film_affinity_radio" class="nfw_checkbox" type="radio" name='default'> FilmAffinity </li>
-              <li><input id="filmweb_radio" class="nfw_checkbox" type="radio" name='default'> Filmweb.pl </li>
               <li><input id="metacritic_radio" class="nfw_checkbox" type="radio" name='default'> Metacritic </li>
+              <li><input id="filmweb_radio" class="nfw_checkbox" type="radio" name='default'> Filmweb.pl </li>
 
             </ul>
       	    <p>Color circles with the ratings: <input id="colors_checkbox" class="nfw_checkbox" type="checkbox" checked="checked">
@@ -260,9 +260,16 @@
             </p>
         </div>
 
+        <div class='desc'>
+            <h3>note on ratings mismatch</h3>
+              <p style='clear: both'> Please be aware that if you use Netflix in a language other than English, there can be a lot of mismatches in the ratings. Our observations show that while with TheMovieDb and IMDb the extension is doing quite well, for the other services it may be not possible to automatically find the correct rating. </p>
+        </div>
+
 
         <div class='desc'>
             <h3>changelog</h3><a name='changelog'></a>
+            <h4> 1.0.1</h4>
+            <p>Once more, thanks to @elchenberg, we've got FilmAffinity rating available!</p>
             <h4> 1.0.0</h4>
             <p>Rotten Tomatoes ratings! Big thanks for @elchenberg!</p>
             <h4> 0.9.3</h4>
