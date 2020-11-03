@@ -3,7 +3,7 @@
 
   "name": "Film scores for Netflix",
   "short_name": "netfweb",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Enriches Netflix site with a ratings based on the scores from most popular review websites.",
   "permissions": [
     "https://www.netflix.com/",
@@ -36,7 +36,7 @@
   }],
 
   "background": {
-    "scripts": ["jquery.js", "map_tmdb.js", "map_imdb.js", "map_metacritic.js", "map_filmweb.js", "map_trakttv.js", "background.js"],
+    "scripts": ["jquery.js", "map_tmdb.js", "map_imdb.js", "map_metacritic.js", "map_trakttv.js", "background.js"],
     "persistent": true
   }
 
