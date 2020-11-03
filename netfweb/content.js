@@ -178,6 +178,8 @@ function placeScoreBob(titleName, idNetflix, filmBox){
  */
 chrome.storage.onChanged.addListener(function(changes, namespace) {
     titleName=score="";
+
+		    console.log("AAA", changes);
     for (key in changes) {
         if(key.match(/^scoreChecked_/)){
           serviceDisplay[key.replace(/scoreChecked_/,(""))] = changes[key].newValue.checked;
