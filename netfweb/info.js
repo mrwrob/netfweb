@@ -29,7 +29,7 @@ chrome.storage.local.get(readStore, function(data) {
 
 $("#new_user").show();
 
-var servicesArray = ["tmdb", "imdb",  "rotten_tomatoes", "metacritic", "filmweb", "film_affinity"];
+var servicesArray = ["tmdb", "imdb",  "rotten_tomatoes", "metacritic", "filmweb", "film_affinity", "trakt_tv"];
 var count=0;
 for(var service of servicesArray){
   count++;
@@ -86,7 +86,7 @@ $("#Trakt_TV_connect").click(function() {
       }
     };
     var body = {
-      'code': $("#track_tv_code").val(),
+      'code': $("#trakt_tv_code").val(),
       'client_id': client_id_trakt_tv,
       'client_secret': client_secret_trakt_tv,
       'redirect_uri': 'urn:ietf:wg:oauth:2.0:oob',
@@ -98,6 +98,12 @@ $("#Trakt_TV_connect").click(function() {
     var win = window.open('https://trakt.tv/oauth/authorize?client_id=' + client_id_trakt_tv + '&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&response_type=code', '_blank');
     win.focus();
   }
+});
+
+$("#Trakt_TV_get").click(function() {
+  //Gets code to requets a token
+  var win = window.open('https://trakt.tv/oauth/authorize?client_id=' + client_id_trakt_tv + '&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&response_type=code', '_blank');
+  win.focus();
 });
 
 
