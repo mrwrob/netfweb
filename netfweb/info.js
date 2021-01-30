@@ -34,12 +34,10 @@ var count=0;
 for(var service of servicesArray){
   count++;
   chrome.storage.local.get("scoreChecked_"+service, function(data) {
-      console.log(data);
       if(data !== undefined || data[readStore] !== undefined){
         var keyValue = Object.keys(data)[0];
         if(keyValue !== undefined){
           if(data[keyValue].checked == 0){
-            console.log("#"+keyValue.replace(/scoreChecked_/,"")+"_check");
             $("#"+keyValue.replace(/scoreChecked_/,"")+"_check").prop('checked', false);
           }
         }
@@ -63,7 +61,6 @@ $("#save_default").click(function() {
      if($('#colors_checkbox').prop('checked'))
          save['colorsChecked'] = 1;
      else save['colorsChecked'] = 0;
-	console.log(save);
      chrome.storage.local.set(save);
 });
 
