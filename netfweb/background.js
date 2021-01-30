@@ -480,7 +480,7 @@ function refresh_TraktTV_token(idNetflix){
     readStore = {};
     readStore['trakt_tv_token'] = '';
     trakt_tv_logged = false;
-    console.log("token");
+    
     chrome.storage.local.get(readStore, function(data){
       if(data['trakt_tv_token'])
       {
