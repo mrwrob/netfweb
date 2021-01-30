@@ -1,7 +1,7 @@
 var client_id_trakt_tv =      "ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1";
 var client_secret_trakt_tv =  "176342720e6f369570d90b08e2328ab2a9588e5ddcaff2765fc258494939aa9a";
 var trakt_tv_token = "";
-var trakt_tv_logged = true;
+var trakt_tv_logged = false;
 
 var watch_movie = {'idNetflix': "", 'start_timestamp':0, 'up_timestamp':0, 'item':{}, 'app_version': "1.0", 'app_date': "2020-11-08", 'status':'ready'};
 
@@ -385,7 +385,7 @@ function parseTraktTV(idNetflix,targetURL, delay, v=0, seen = 0, type = 'undefin
 		request_.setRequestHeader('trakt-api-version', '2');
 		request_.setRequestHeader('trakt-api-key', client_id_trakt_tv);
 		request_.onreadystatechange = function () {
-			if (this.readyState === 4) {
+			if (this.readyState === 4  && valid_status(this.status)) {
 				var score = Math.round(this.response['rating']*10)/10;
 				var titleName="trakt_tv_"+idNetflix;
 				saveScore(titleName, score, targetURL, v, seen, type);
@@ -393,6 +393,16 @@ function parseTraktTV(idNetflix,targetURL, delay, v=0, seen = 0, type = 'undefin
 		};
 		request_.send();
     }
+}
+
+function valid_status(status){
+  if(status == 200)
+    return true;
+  if(status == 201)
+    return true;
+  if(status == 204)
+    return true;
+  return false;
 }
 
 /**
@@ -411,7 +421,7 @@ function getTraktTV(request, data, delay, force = false){
 		request_.setRequestHeader('trakt-api-version', '2');
 		request_.setRequestHeader('trakt-api-key', client_id_trakt_tv);
 		request_.onreadystatechange = function () {
-			if (this.readyState === 4) {
+			if (this.readyState === 4  && valid_status(this.status)) {
         var index = 0;
         while((this.response[index]['type'] != 'movie' && this.response[index]['type'] != 'show' ) && index < this.response.length-1) index++;
         if(this.response[index]['type'] == 'movie' || this.response[index]['type'] == 'show' ){
@@ -420,9 +430,9 @@ function getTraktTV(request, data, delay, force = false){
 				var id_ = this.response[index][type]['ids']['trakt'];
             var targetURL = 'https://trakt.tv/' + type + 's/' + Slug;
             if(trakt_tv_logged){
-                watched_TraktTV(type, id_, request.idNetflix, targetURL, 1000, type);
+                watched_TraktTV(type, id_, request.idNetflix, targetURL, 1000);
             }else{
-                parseTraktTV(request.idNetflix,targetURL, 1000, 0, type);
+                parseTraktTV(request.idNetflix,targetURL, 1000, 0, 0, type);
             }
         }
 			}
@@ -431,12 +441,12 @@ function getTraktTV(request, data, delay, force = false){
 	}else { // data about title already in storage
         item = JSON.parse(data['trakt_tv_' + request.idNetflix]);
         if(item.URL && (!item.score || request.all == 0) ) {
-            parseTraktTV(request.idNetflix,item.URL, delay, item.v, item.seen);
+            parseTraktTV(request.idNetflix,item.URL, delay, item.v, item.seen, item.type);
         }
     }
 }
 
-function watched_TraktTV(type, id_, idNetflix, targetURL, delay, type = 'undefined'){
+function watched_TraktTV(type, id_, idNetflix, targetURL, delay){
     var watched = 0;
     var request_watch = new XMLHttpRequest();
     request_watch.open('GET', 'https://api.trakt.tv/sync/history/' + type + 's/' + id_);
@@ -465,6 +475,8 @@ function watched_TraktTV(type, id_, idNetflix, targetURL, delay, type = 'undefin
 function refresh_TraktTV_token(idNetflix){
     readStore = {};
     readStore['trakt_tv_token'] = '';
+    trakt_tv_logged = false;
+    console.log("token");
     chrome.storage.local.get(readStore, function(data){
       if(data['trakt_tv_token'])
       {
@@ -476,7 +488,7 @@ function refresh_TraktTV_token(idNetflix){
         time_left = token.created_at+token.expires_in-Date.now()/1000;
         //3 weeks (21 days)
         max_time_left= 21*24*60*60;
-        if(time_left <= 0) time_left = false;
+        //if(time_left <= 0) time_left = false;
         if(time_left < max_time_left){
           //Refresh Token 
           var request = new XMLHttpRequest();
@@ -608,7 +620,7 @@ function TraktTV_watch(idNetflix, type, new_idNetflix="", new_type="", valid = t
               request_.setRequestHeader('trakt-api-version', '2');
               request_.setRequestHeader('trakt-api-key', client_id_trakt_tv);
               request_.onreadystatechange = function () {
-                if (this.readyState === 4) {
+                if (this.readyState === 4  && valid_status(this.status)) {
                   watch_movie.item = this.responseText;
                   watch_movie.idNetflix = idNetflix;
                   TraktTV_watch(idNetflix, type);
@@ -634,11 +646,11 @@ function TraktTV_watch(idNetflix, type, new_idNetflix="", new_type="", valid = t
 function update_map(idNetflix, source, sourceURL){
   var readStore = source+"_"+idNetflix;
   chrome.storage.local.get(readStore, function(data) {
-    var itemJSON = JSON.stringify({'URL' : sourceURL, 'v': '1' });
+    var itemJSON = JSON.stringify({'URL' : sourceURL, 'v': '1' , 'type': 'undefined'});
     if(data[readStore]){
       var storageJSON = JSON.parse(data[readStore]);
       if(storageJSON.score) {
-        itemJSON = JSON.stringify({'URL' : sourceURL, 'score': storageJSON.score, 'v': '1' });
+        itemJSON = JSON.stringify({'URL' : sourceURL, 'score': storageJSON.score, 'v': '1',  'type' : storageJSON.type});
       }
     }
     var save = {};
@@ -734,7 +746,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
               });
 			      } 
 			      if(((request.all=="0")&&(request.serviceDisplay.trakt_tv == 1)) || (scoreSource=='trakt_tv')){
-                if(trakt_tv_token == "" && trakt_tv_logged)
+                if(trakt_tv_token == "")
                     refresh_TraktTV_token();
 
                 readStore = {};
