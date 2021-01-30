@@ -76,6 +76,14 @@ function placeScore(titleName, idNetflix, filmBox){
 	    }
             filmBox.find(".nfw_score").html(currScore);
         });
+
+        var readStore = "watch_"+idNetflix;
+        /* Read and place score from storage */
+        chrome.storage.local.get(readStore, function(data) {
+            if(data[readStore]){
+                filmBox.css('opacity', '0.3');
+            }
+        });
     }
 }
 
@@ -163,15 +171,21 @@ function placeScoreBob(titleName, idNetflix, filmBox){
       chrome.storage.local.get(readStore, function(data) {
           var infoJSON = getInfo(data[readStore]);
           var sourceURL = infoJSON.URL;
+          var watched = infoJSON.seen=='1' ? true : false;
           if(!sourceURL) {
             sourceURL=params[source].URL+encodeURIComponent(titleName).replace("'","%27");
             if(params[source].URL2) sourceURL+=params[source].URL2;
           }
 
-          destBox.append(" <img src='"+chrome.extension.getURL("/star.png")+"'>&nbsp;<a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+displayScore(infoJSON.score)+"</span></a>");
-      });
-    })
+          destBox.append(" <img src='"+chrome.extension.getURL("/star.png")+"'>&nbsp;<a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+displayScore(infoJSON.score)+ (watched ? " Watched" : "") +"</span></a>");
+          if(watched){
+            box_movie.find(".title-card-container").addClass('nfw_watched');
+          }
+        });
+    });
 }
+
+chrome.runtime.sendMessage({type: "update_token"});
 
 /*
  * Listens to changes in data storege and changes information about ratings
@@ -188,22 +202,27 @@ chrome.storage.onChanged.addListener(function(changes, namespace) {
 
             if(key.match(scoreSource)){
                 $(".title_"+idNetflix).each(function(){
-	    	    colorScore = currScore = displayScore(getInfo(data).score);
+	    	        colorScore = currScore = displayScore(getInfo(data).score);
                     $(this).html(currScore);
-		    if(displayColors && (colorScore != '?')){
-		        if(colorScore>10) colorScore /= 10;
-		        if(colorScore < 5) colorClass = 'red';
-		        else if(colorScore < 6.5) colorClass = 'orange';
-		        else if(colorScore < 8) colorClass = 'yellow';
-		        else colorClass = 'green';
+		            if(displayColors && (colorScore != '?')){
+		                if(colorScore>10) colorScore /= 10;
+		                if(colorScore < 5) colorClass = 'red';
+		                else if(colorScore < 6.5) colorClass = 'orange';
+		                else if(colorScore < 8) colorClass = 'yellow';
+		                else colorClass = 'green';
             	        $(this).addClass('nfw_circle_'+colorClass);
-	            }
-
+	                }
+                });
+            }
+            if(key.match("watch_")){
+                idNetflix=key.replace("watch_","");
+                $(".title_"+idNetflix).each(function(){
+                    $(this).closest('.title-card-container').css('opacity', '0.3');
                 });
             }
 
             $(".title_"+key).each(function(){
-                $(this).html(displayScore(getInfo(data).score)+((source == "trakt_tv" && getInfo(data).seen == 1) ? " seen" : ""));
+                $(this).html(displayScore(getInfo(data).score));
             });
 
             $(".link_"+key).each(function(){
@@ -280,7 +299,7 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
     	var $nodes = $( newNodes ); // jQuery set
     	$nodes.each(function() {
             if($(this).attr('class') !== undefined){
-
+                
                 // For all displayed titles
                 $(this).find('.title-card-container').each(function(){
                     titleName = $(this).find('.fallback-text:first').text();
@@ -314,6 +333,33 @@ var observer = new MutationObserver(function( mutations ) {   // based on https:
                     placeScoreBob(titleName,idNetflix, $(this).find('div.previewModal--info'));
                   }
                 }
+
+
+                // For the player
+                //tem de guardar na memoria o que esta a ver (UNIQUE)
+                //limpa ao para
+                //se não limpar tem de limpar antes de entrar outro
+                if($(this).attr('class').match(/svg-icon-nfplayerPlay/)){
+                    idNetflix = window.location.pathname.replace("/watch/","");
+                    chrome.runtime.sendMessage({type: "watch", idNetflix: idNetflix, mode: "pause"});
+                    console.log("Is paused");
+                }
+                if($(this).attr('class').match(/svg-icon-nfplayerPause/)){
+                    idNetflix = window.location.pathname.replace("/watch/","");
+                    chrome.runtime.sendMessage({type: "watch", idNetflix: idNetflix, mode: "play"});
+                    console.log("Is playing");
+                }
+                if($(this).attr('class').match(/touchable.PlayerControls--control-element.nfp-popup-control.nfp-popup-control--static-position/)){
+                    idNetflix = window.location.pathname.replace("/watch/","");
+                    chrome.runtime.sendMessage({type: "watch", idNetflix: idNetflix, mode: "start"});
+                    console.log("Start");
+                }
+                if($(this).attr('class').match(/ptrack-container.fill-container.OriginalsPostPlay-BackgroundTrailer/)){
+                    idNetflix = window.location.pathname.replace("/watch/","");
+                    chrome.runtime.sendMessage({type: "watch", idNetflix: idNetflix, mode: "end"});
+                    console.log("End");
+                }
+
             }
     	});
     }

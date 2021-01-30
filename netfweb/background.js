@@ -1,3 +1,12 @@
+var client_id_trakt_tv =      "ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1";
+var client_secret_trakt_tv =  "176342720e6f369570d90b08e2328ab2a9588e5ddcaff2765fc258494939aa9a";
+var trakt_tv_token = "";
+var trakt_tv_logged = true;
+
+var watch_movie = {'idNetflix': "", 'start_timestamp':0, 'up_timestamp':0, 'item':{}, 'app_version': "1.0", 'app_date': "2020-11-08", 'status':'ready'};
+
+document.cookie = 'SameSite=None; Secure';
+
 $('body').append("<div id='hidden'></div>");
 
 /**
@@ -7,8 +16,8 @@ $('body').append("<div id='hidden'></div>");
  * @param {string} targetURL - URL of title's website on the source website
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
-function saveScore(storageID, score, targetURL, v, seen=0){
-    var infoJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v, 'seen' :  seen});
+function saveScore(storageID, score, targetURL, v, seen=0, type = 'undefined'){
+    var infoJSON = JSON.stringify({ 'score': score, 'URL' : targetURL, 'v': v, 'seen' :  seen, 'type' : type});
     var save = {};
     save[storageID] = infoJSON;
     chrome.storage.local.set(save);
@@ -366,7 +375,7 @@ function getFilmAffinity(request, data, delay) {
  * @param {integer} delay - number of delay before fetching website
  * @param {integer} v - verification status (1 - verified, 0 - unverified)
  */
-function parseTraktTV(idNetflix,targetURL, delay, v=0){
+function parseTraktTV(idNetflix,targetURL, delay, v=0, seen = 0, type = 'undefined'){
 	if(targetURL.match(/trakt/)){
 		document.cookie = 'SameSite=None; Secure';
 		var request_ = new XMLHttpRequest();
@@ -374,12 +383,12 @@ function parseTraktTV(idNetflix,targetURL, delay, v=0){
 		request_.open('GET', targetURL.replace('https://trakt.tv/', 'https://api.trakt.tv/') + '/ratings');
 		request_.setRequestHeader('Content-Type', 'application/json');
 		request_.setRequestHeader('trakt-api-version', '2');
-		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
+		request_.setRequestHeader('trakt-api-key', client_id_trakt_tv);
 		request_.onreadystatechange = function () {
 			if (this.readyState === 4) {
 				var score = Math.round(this.response['rating']*10)/10;
 				var titleName="trakt_tv_"+idNetflix;
-				saveScore(titleName, score, targetURL, v);
+				saveScore(titleName, score, targetURL, v, seen, type);
 			}
 		};
 		request_.send();
@@ -392,30 +401,227 @@ function parseTraktTV(idNetflix,targetURL, delay, v=0){
  * @param {object} data - data read from storage
  * @param {integer} delay - number of delay before fetching website
  */
-function getTraktTV(request, data, delay){
+function getTraktTV(request, data, delay, force = false){
 	if(!data["trakt_tv_"+request.idNetflix]){
 		document.cookie = 'SameSite=None; Secure';
 		var request_ = new XMLHttpRequest();
 		request_.responseType = 'json';
-		request_.open('GET', 'https://api.trakt.tv/search?query=' + encodeURIComponent(request.titleName));
+		request_.open('GET', 'https://api.trakt.tv/search/movie,show?query=' + encodeURIComponent(request.titleName));
 		request_.setRequestHeader('Content-Type', 'application/json');
 		request_.setRequestHeader('trakt-api-version', '2');
-		request_.setRequestHeader('trakt-api-key', 'ffa074e4f91501a4b287206468975d0044d696ae4ed537a43fffc9fd77ee4ec1');
+		request_.setRequestHeader('trakt-api-key', client_id_trakt_tv);
 		request_.onreadystatechange = function () {
 			if (this.readyState === 4) {
-				var type = this.response[0]['type']
-				var Slug = this.response[0][type]['ids']['slug'];
-				var targetURL = 'https://trakt.tv/' + type + 's/' + Slug;
-				parseTraktTV(request.idNetflix,targetURL, 1000);
+        var index = 0;
+        while((this.response[index]['type'] != 'movie' && this.response[index]['type'] != 'show' ) && index < this.response.length-1) index++;
+        if(this.response[index]['type'] == 'movie' || this.response[index]['type'] == 'show' ){
+				var type = this.response[index]['type']
+				var Slug = this.response[index][type]['ids']['slug'];
+				var id_ = this.response[index][type]['ids']['trakt'];
+            var targetURL = 'https://trakt.tv/' + type + 's/' + Slug;
+            if(trakt_tv_logged){
+                watched_TraktTV(type, id_, request.idNetflix, targetURL, 1000, type);
+            }else{
+                parseTraktTV(request.idNetflix,targetURL, 1000, 0, type);
+            }
+        }
 			}
 		};
 		request_.send();
 	}else { // data about title already in storage
         item = JSON.parse(data['trakt_tv_' + request.idNetflix]);
         if(item.URL && (!item.score || request.all == 0) ) {
-            parseTraktTV(request.idNetflix,item.URL, delay, item.v);
+            parseTraktTV(request.idNetflix,item.URL, delay, item.v, item.seen);
         }
     }
+}
+
+function watched_TraktTV(type, id_, idNetflix, targetURL, delay, type = 'undefined'){
+    var watched = 0;
+    var request_watch = new XMLHttpRequest();
+    request_watch.open('GET', 'https://api.trakt.tv/sync/history/' + type + 's/' + id_);
+    request_watch.responseType = 'json';
+    request_watch.setRequestHeader('Content-Type', 'application/json');
+    request_watch.setRequestHeader('Authorization', 'Bearer ' + trakt_tv_token);
+    request_watch.setRequestHeader('trakt-api-version', '2');
+    request_watch.setRequestHeader('trakt-api-key', client_id_trakt_tv);
+    request_watch.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        if(this.response[0]){
+            if(this.response[0]['watched_at'].length > 10 && this.response[0][type]['ids']['trakt'] == id_)
+            {
+                var save = {};
+                save["watch_" + idNetflix] = this.response;
+                chrome.storage.local.set(save);
+                watched = 1;
+            }
+        }
+        parseTraktTV(idNetflix,targetURL, delay, 0, watched, type);
+      }
+    };
+    request_watch.send();
+}
+
+function refresh_TraktTV_token(idNetflix){
+    readStore = {};
+    readStore['trakt_tv_token'] = '';
+    chrome.storage.local.get(readStore, function(data){
+      if(data['trakt_tv_token'])
+      {
+        token = JSON.parse(data['trakt_tv_token']);
+        //timestapm in seconds
+        //api token from trakt TV expire in 3 months
+        trakt_tv_token = token.access_token;
+        trakt_tv_logged = true;
+        time_left = token.created_at+token.expires_in-Date.now()/1000;
+        //3 weeks (21 days)
+        max_time_left= 21*24*60*60;
+        if(time_left <= 0) time_left = false;
+        if(time_left < max_time_left){
+          //Refresh Token 
+          var request = new XMLHttpRequest();
+  
+          request.open('POST', 'https://api.trakt.tv/oauth/token');
+          request.setRequestHeader('Content-Type', 'application/json');
+          request.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                trakt_tv_logged = false;
+                in_json = JSON.parse(this.response);
+                if(!in_json["error"] && in_json["access_token"])
+                {
+                  //valid token
+                  trakt_tv_token = in_json.access_token;
+                  var save = {};
+                  save['trakt_tv_token'] = this.response;
+                  chrome.storage.local.set(save);
+                  trakt_tv_logged = true;
+                }
+            }
+          };
+          var body = {
+            'refresh_token': token['refresh_token'],
+            'client_id': client_id_trakt_tv,
+            'client_secret': client_secret_trakt_tv,
+            'redirect_uri': 'urn:ietf:wg:oauth:2.0:oob',
+            'grant_type': 'refresh_token'
+          };
+          request.send(JSON.stringify(body));
+        }
+      }
+    });
+}
+
+function TraktTV_watch(idNetflix, type, new_idNetflix="", new_type="", valid = true, try_again = 0){
+  if(watch_movie.idNetflix == idNetflix){
+    if(try_again > 0){
+      watch_movie.status = type;
+      var JSON_movie = JSON.stringify(watch_movie);
+      var save_movie = {};
+      save_movie['watch_movie'] = JSON_movie;
+      chrome.storage.local.set(save_movie);
+    }
+    var request = new XMLHttpRequest();
+    request.open('POST', 'https://api.trakt.tv/scrobble/' + type);
+    request.responseType = 'json';
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.setRequestHeader('Authorization', 'Bearer ' + trakt_tv_token);
+    request.setRequestHeader('trakt-api-version', '2');
+    request.setRequestHeader('trakt-api-key', client_id_trakt_tv);
+    
+    request.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        if(this.status != 201){
+          if(try_again < 20)
+            setTimeout(() => {  TraktTV_watch(idNetflix, type, "", "", true, ++try_again); }, 180000);
+          return;
+        }
+        if(type == "stop"){
+          watch_movie.idNetflix = "";
+          watch_movie.item = {};
+          if(watch_movie.status=="stop" || valid){
+            readStore = {};
+            readStore["trakt_tv_" + idNetflix] = '';
+            chrome.storage.local.get(readStore, function(data){
+              if(data["trakt_tv_" + idNetflix]){
+                movie_info = JSON.parse(data["trakt_tv_" + idNetflix]);
+                movie_info.seen = 1;
+                var infoJSON = JSON.stringify(movie_info);
+                var save = {};
+                save["trakt_tv_" + idNetflix] = infoJSON;
+                chrome.storage.local.set(save);
+              }
+            });
+            save = {};
+            save["watch_" + idNetflix] = this.response;
+            chrome.storage.local.set(save);
+          }
+          watch_movie.status = "";
+        }else if(type == "start"){
+          watch_movie.status = type;
+          watch_movie.start_timestamp = Date.now()/1000;
+          watch_movie.up_timestamp = Date.now()/1000;
+        }else{
+          watch_movie.status = type;
+          watch_movie.up_timestamp = Date.now()/1000;
+        }
+        var JSON_movie = JSON.stringify(watch_movie);
+        var save_movie = {};
+        save_movie['watch_movie'] = JSON_movie;
+        chrome.storage.local.set(save_movie);
+        if(new_idNetflix!="" && new_type!="") TraktTV_watch(new_idNetflix, new_type);
+      }
+    };
+    var body = {
+      'movie': JSON.parse(watch_movie.item),
+      'progress': (type == "stop" && (watch_movie.status=="stop" || valid)) ? 100 : ((type == "pause") ? 25 : 1.25),
+      'app_version': watch_movie.app_version,
+      'app_date': watch_movie.app_date
+    };
+    request.send(JSON.stringify(body));
+  }else{
+    if(watch_movie.idNetflix != ""){
+      TraktTV_watch(watch_movie.idNetflix, "stop", idNetflix, type, false);
+    }else{
+      readStore = {};
+      readStore['watch_movie'] = '';
+      chrome.storage.local.get(readStore, function(data){
+        if(data['watch_movie']){
+          temp = JSON.parse(data['watch_movie']);
+          watch_movie.idNetflix = temp.idNetflix;
+          watch_movie.item = temp.item;
+          watch_movie.status = temp.status;
+        }
+        if(watch_movie.idNetflix == idNetflix){
+          TraktTV_watch(idNetflix, type);
+        }else if(watch_movie.idNetflix != ""){
+          TraktTV_watch(watch_movie.idNetflix, "stop", idNetflix, type);
+        }else{
+          readStore = {};
+          readStore["trakt_tv_" + idNetflix] = '';
+          chrome.storage.local.get(readStore, function(data){
+            movie_info = JSON.parse(data["trakt_tv_" + idNetflix]);
+            if(movie_info.URL.match(/trakt/) && (movie_info.type == 'movie')){
+              document.cookie = 'SameSite=None; Secure';
+              var request_ = new XMLHttpRequest();
+              request_.open('GET', movie_info.URL.replace('https://trakt.tv/', 'https://api.trakt.tv/'));
+              request_.setRequestHeader('Content-Type', 'application/json');
+              request_.setRequestHeader('trakt-api-version', '2');
+              request_.setRequestHeader('trakt-api-key', client_id_trakt_tv);
+              request_.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                  watch_movie.item = this.responseText;
+                  watch_movie.idNetflix = idNetflix;
+                  TraktTV_watch(idNetflix, type);
+                }
+              };
+              request_.send();
+            }
+          });
+        }
+        
+      });
+    }
+  }
 }
 
 
@@ -452,12 +658,12 @@ function import_maps(){
       for (var idNetflix in  map_imdb)  update_map(idNetflix, 'imdb', 'https://www.imdb.com/'+map_imdb[idNetflix]);
       for (var idNetflix in  map_metacritic) update_map(idNetflix, 'metacritic', 'https://www.metacritic.com/'+map_metacritic[idNetflix]);
       for (var idNetflix in  map_tmdb) update_map(idNetflix, 'tmdb', 'https://www.themoviedb.org/'+map_tmdb[idNetflix]);
-	  for (var idNetflix in  map_trakttv) update_map(idNetflix, 'trakttv', 'https://trakt.tv/'+map_trakttv[idNetflix]);
+	    for (var idNetflix in  map_trakttv) update_map(idNetflix, 'trakttv', 'https://trakt.tv/'+map_trakttv[idNetflix]);
       map_filmweb="";
       map_metacritic="";
       map_imdb="";
       map_tmdb="";
-	  map_trakttv="";
+	    map_trakttv="";
     });
 }
 
@@ -475,7 +681,7 @@ function send_report_c(data){
 
 /* Listens and handles messages sent from content.js */
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
-
+  
     if((request.type=="getScore")&&(request.idNetflix)){
     /* Request for rating information */
         var delay=10;
@@ -526,14 +732,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
               chrome.storage.local.get(readStore, function(data){
                    getFilmAffinity(request, data, delay) ;
               });
-			} 
-			if(((request.all=="0")&&(request.serviceDisplay.trakt_tv == 1)) || (scoreSource=='trakt_tv')){
-            readStore = {};
-            readStore["trakt_tv_"+request.idNetflix] = '';
-            chrome.storage.local.get(readStore, function(data){
-                 getTraktTV(request, data, delay) ;
-            });
-          }
+			      } 
+			      if(((request.all=="0")&&(request.serviceDisplay.trakt_tv == 1)) || (scoreSource=='trakt_tv')){
+                if(trakt_tv_token == "" && trakt_tv_logged)
+                    refresh_TraktTV_token();
+
+                readStore = {};
+                readStore["trakt_tv_"+request.idNetflix] = '';
+                chrome.storage.local.get(readStore, function(data){
+                  getTraktTV(request, data, delay) ;
+                });
+            }
       });
 
     }else if(request.type=="report"){
@@ -613,6 +822,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
              });
         }, Math.random()*5000);
 
+    }else if(request.type=="update_token"){
+        refresh_TraktTV_token();
+    }else if(request.type=="watch" && (trakt_tv_token != "" && trakt_tv_logged)){
+      if(request.mode == "pause"){
+        TraktTV_watch(request.idNetflix, "pause");
+      }else if(request.mode == "play"){
+        TraktTV_watch(request.idNetflix, "start");
+      }else if(request.mode == "start"){
+        TraktTV_watch(request.idNetflix, "start");
+      }else if(request.mode == "end"){
+        TraktTV_watch(request.idNetflix, "stop");
+      }
     }
 });
 
