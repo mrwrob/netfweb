@@ -65,7 +65,7 @@ $("#save_default").click(function() {
 });
 
 $("#Trakt_TV_connect").click(function() {
-  if($("#track_tv_code").val().length > 7){
+  if($("#trakt_tv_code").val().length > 7){
     //Request a token
     document.cookie = 'SameSite=None; Secure';
     var request = new XMLHttpRequest();
@@ -82,6 +82,8 @@ $("#Trakt_TV_connect").click(function() {
           chrome.storage.local.set(save);
           trakt_tv_token = in_json.access_token;
           chrome.runtime.sendMessage({type: "update_token"});
+          $("#trakt_tv_code").css('background','green');
+
         }
       }
     };

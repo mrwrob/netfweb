@@ -61,10 +61,9 @@ function placeScore(titleName, idNetflix, filmBox){
         filmBox.append("<div class='nfw_score title_"+idNetflix+"'></div>");
         if(!scoreSource) scoreSource='tmdb';
         var readStore = scoreSource+"_"+idNetflix;
-        console.log(readStore);
+        
         /* Read and place score from storage */
         chrome.storage.local.get(readStore, function(data) {
-            console.log(data[readStore]);
 	    colorScore = currScore = displayScore(getInfo(data[readStore]).score);
 	     
 	    if(displayColors && (colorScore != '?')){
