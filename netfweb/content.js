@@ -55,17 +55,14 @@ function placeScore(titleName, idNetflix, filmBox){
     /* Send message to background.js to prepare information about rating of selected title,
        all=1 - only for one, currently selected source website */
     chrome.runtime.sendMessage({type: "getScore", titleName: titleName, idNetflix: idNetflix, all: "1"});
-
 //    if(filmBox.find('div.nfw_score').length == 0 || filmBox.find('div.nfw_score').text != '?'){
     if(filmBox.find('div.nfw_score').length == 0){
         filmBox.append("<div class='nfw_score title_"+idNetflix+"'></div>");
         if(!scoreSource) scoreSource='tmdb';
         var readStore = scoreSource+"_"+idNetflix;
-        
         /* Read and place score from storage */
         chrome.storage.local.get(readStore, function(data) {
 	    colorScore = currScore = displayScore(getInfo(data[readStore]).score);
-	     
 	    if(displayColors && (colorScore != '?')){
 		    if(colorScore>10) colorScore /= 10;
 		    if(colorScore < 5) colorClass = 'red';
@@ -77,10 +74,10 @@ function placeScore(titleName, idNetflix, filmBox){
             filmBox.find(".nfw_score").html(currScore);
         });
 
-        var readStore = "watch_"+idNetflix;
+        var readStore_w = "watch_"+idNetflix;
         /* Read and place score from storage */
-        chrome.storage.local.get(readStore, function(data) {
-            if(data[readStore]){
+        chrome.storage.local.get(readStore_w, function(data) {
+            if(data[readStore_w]){
                 filmBox.css('opacity', '0.3');
             }
         });
@@ -124,12 +121,13 @@ function placeScoreJaw(titleName, idNetflix, filmBox){
       var readStore = source+"_"+idNetflix;
       chrome.storage.local.get(readStore, function(data) {
           var infoJSON = getInfo(data[readStore]);
+          var watched = infoJSON.seen=='1' ? true : false;
           var sourceURL = infoJSON.URL;
           if(!sourceURL) {
             sourceURL=params[source].URL+encodeURIComponent(titleName).replace("'","%27");
             if(params[source].URL2) sourceURL+=params[source].URL2;
           }
-          destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+displayScore(infoJSON.score)+"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
+          destBox.append(" <a target='_blank' class='nfw_jaw_link link_"+readStore+"' href='"+sourceURL+"'>&nbsp;"+params[source].name+"&nbsp;<span class='title_"+readStore+"'>"+displayScore(infoJSON.score) + (watched ? " Watched" : "") +"</span></a>&nbsp;<img src='"+chrome.extension.getURL("/star.png")+"'> ");
           if(infoJSON.v!=1) {
               destBox.find('#nfw_report').append("<div id='ntw_"+params[source].shortcut+"_report'>"+params[source].name+"&nbsp;<img id='ntw_"+params[source].shortcut+"_ok' class='nfw_button' src='"+chrome.extension.getURL("/ok.png")+"'>&nbsp;<img id='ntw_"+params[source].shortcut+"_wrong' class='nfw_button' src='"+chrome.extension.getURL("/wrong.png")+"'> </div>");
               destBox.find('#ntw_'+params[source].shortcut+'_ok').click(function(){
