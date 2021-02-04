@@ -650,7 +650,7 @@ function update_map(idNetflix, source, sourceURL){
     if(data[readStore]){
       var storageJSON = JSON.parse(data[readStore]);
       if(storageJSON.score) {
-        itemJSON = JSON.stringify({'URL' : sourceURL, 'score': storageJSON.score, 'v': '1',  'type' : storageJSON.type});
+        itemJSON = JSON.stringify({'URL' : sourceURL, 'score': storageJSON.score, 'v': '1', 'seen' : 0,  'type' : storageJSON.type});
       }
     }
     var save = {};
