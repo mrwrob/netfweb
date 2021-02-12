@@ -26,10 +26,11 @@ function parseFilmWeb(idNetflix,targetURL, delay, v=0){
 		$.ajax({
 		    url: targetURL,
 		    success: function(data) {
-			var parseURL=/filmRating__rateValue">[^<]*"/.exec(data);
+			var parseURL=/filmRating__rateValue">[^<]*/.exec(data);
 			var score = "?";
 			if(parseURL !== null){
-			    score = parseURL[0].replace(/.*">([^<]*)"/,'$1');
+			    score = parseURL[0].replace(/.*">([^<]*)/,'$1');
+			    console.log(score);
 			    var storageID="filmweb_"+idNetflix;
 			    saveScore(storageID, score, targetURL, v);
 			}
@@ -51,9 +52,10 @@ function getFilmwebURL(request, data, delay){
 
   if((parseURL !== null)&&(!parseURL[0].match("Zielona.mila"))){
       var targetURL = "https://www.filmweb.pl"+parseURL[0].replace(/.*?class="filmPreview__link" href="([^"]*)".*/,'$1');
-      var score = parseURL[0].replace(/.*"ratingValue">([^<]*).*/,'$1')
-      var storageID="filmweb_"+request.idNetflix;
-      saveScore(storageID, score, targetURL, 0);
+      parseFilmWeb(request.idNetflix,targetURL, delay);
+//      var score = parseURL[0].replace(/.*"ratingValue">([^<]*).*/,'$1')
+//      var storageID="filmweb_"+request.idNetflix;
+//      saveScore(storageID, score, targetURL, 0);
   }
 
 }
