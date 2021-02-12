@@ -197,6 +197,12 @@
 
             }
 
+            #trakt_tv_token {
+                padding: 1px 20px;
+                background-color: rgb(197, 178, 143);
+                border-radius: 5px;
+                width: 200px;
+            }}
         </style>
         <script type="text/javascript" src="jquery.js"></script>
     </head>
@@ -240,14 +246,17 @@
               <li><input id="filmweb_radio" class="nfw_checkbox" type="radio" name='default'> Filmweb.pl </li>
 	      <li><input id="trakt_tv_radio" class="nfw_checkbox" type="radio" name='default'> Trakt TV </li>
             </ul>
-              <p>Color circles with the ratings: <input id="colors_checkbox" class="nfw_checkbox" type="checkbox" checked="checked">
+            <p>Color circles with the ratings: <input id="colors_checkbox" class="nfw_checkbox" type="checkbox" checked="checked">
+
+            <div id="trakt_tv_token">
+                <h4>Trakt TV Account</h4>
                 <p>
                 <button id='Trakt_TV_get' style="width: 180px;">Get the token</button>
                 <br>
                 <input id="trakt_tv_code" type="text" name='default' style="width: 180px;box-sizing: border-box;">
                 <br>
                 <button id='Trakt_TV_connect' style="width: 180px;">Connect with Trakt TV</button>
-                    
+            </div>
 
             <p><button id='save_default'>Save</button> <span id='conf_reload'>Reload Netflix.com after modfifications</span>
         </div>
