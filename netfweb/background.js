@@ -39,7 +39,6 @@ function parseFilmWeb(idNetflix,targetURL, delay, v=0){
 			var score = "?";
 			if(parseURL !== null){
 			    score = parseURL[0].replace(/.*">([^<]*)/,'$1');
-			    console.log(score);
 			    var storageID="filmweb_"+idNetflix;
 			    saveScore(storageID, score, targetURL, v);
 			}
@@ -180,12 +179,12 @@ function parseIMDB(idNetflix,targetURL, delay, v=0){
             $.ajax({
                 url: targetURL,
                 success: function(data) {
-                    var parseURL=/<div class="ratingValue">[^<]*<strong[^<]*<span[^<]*<\/span/.exec(data);
+                    var parseURL=/<span class="AggregateRatingButton__RatingScore-sc-1ll29m0-1 iTLWoV">[^<]*<\/span>/.exec(data);
                     var score = "?";
                     if(parseURL !== null){
-			                  score = parseURL[0].replace(/.*<span itemprop="ratingValue">([^<]*)<\/span/,'$1');
+			                  score = parseURL[0].replace(/.*>([^<]*)<\/span.*/,'$1');
                         var titleName="imdb_"+idNetflix;
-                        saveScore(titleName, score.split("\n")[1], targetURL, v);
+                        saveScore(titleName, score, targetURL, v);
                     }
                 }
 
